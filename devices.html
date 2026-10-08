@@ -192,6 +192,60 @@ double yaw = imu.getYaw(AngleUnit.DEGREES);   // reads the value cached by updat
       </tbody>
     </table>
 
+    <h3>PositionMotorDevice</h3>
+    <p>A <code>MotorDevice</code> that closes a position loop on the robot (rather than on the Lynx
+    firmware's <code>RUN_TO_POSITION</code>). You give it a <a href="controllers.html">Controller</a>
+    and a target encoder position; each <code>update()</code> measures the current encoder ticks,
+    runs the controller to produce a power, and flushes that power through the inherited
+    write&#8209;caching. Because it extends <code>MotorDevice</code>, all the configuration and read
+    methods above (<code>setDirection</code>, <code>setZeroPowerBehavior</code>,
+    <code>getCurrentPosition</code>, <code>getMotor</code>, …) are available too.</p>
+    <table>
+      <thead><tr><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>PositionMotorDevice(DcMotorEx, Controller)</code></td><td>Wrap a resolved motor
+          and drive it to the controller's target.</td></tr>
+        <tr><td><code>PositionMotorDevice(HardwareMap, String, Controller)</code></td><td>Resolve the
+          motor by configured name, with the given controller.</td></tr>
+        <tr><td><code>PositionMotorDevice(DcMotorEx)</code> /<br><code>PositionMotorDevice(HardwareMap,
+          String)</code></td><td>No controller supplied — defaults to a <code>NullController(0)</code>
+          (holds zero) until you call <code>setController</code>.</td></tr>
+        <tr><td><code>void setPosition(int position)</code></td><td>Set the target encoder position, in
+          ticks. Applied via the controller on the next <code>update()</code>.</td></tr>
+        <tr><td><code>void setController(Controller controller)</code></td><td>Swap the control law;
+          the target is re-read from the new controller.</td></tr>
+      </tbody>
+    </table>
+    <div class="note"><b>Call <code>update()</code> every loop.</b> The controller is a discrete loop —
+    each <code>update()</code> computes the elapsed <code>dt</code> and steps the controller once, so a
+    steady cadence matters. Held inside a <code>DeviceSubsystem</code>, this happens automatically.</div>
+
+    <h3>VelocityMotorDevice</h3>
+    <p>The velocity analogue of <code>PositionMotorDevice</code>: a <code>MotorDevice</code> that closes
+    a <em>velocity</em> loop with a <a href="controllers.html">Controller</a>. Each
+    <code>update()</code> measures the current velocity (ticks/second), runs the controller to produce a
+    power, and flushes it. Useful for flywheels and intakes where you want a held RPM rather than a
+    fixed open-loop power. It too inherits every <code>MotorDevice</code> method.</p>
+    <table>
+      <thead><tr><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>VelocityMotorDevice(DcMotorEx, Controller)</code></td><td>Wrap a resolved motor
+          and drive it to the controller's target velocity.</td></tr>
+        <tr><td><code>VelocityMotorDevice(HardwareMap, String, Controller)</code></td><td>Resolve the
+          motor by configured name, with the given controller.</td></tr>
+        <tr><td><code>VelocityMotorDevice(DcMotorEx)</code> /<br><code>VelocityMotorDevice(HardwareMap,
+          String)</code></td><td>No controller supplied — defaults to a <code>NullController(0)</code>
+          until you call <code>setController</code>.</td></tr>
+        <tr><td><code>void setVelocity(double velocity)</code></td><td>Set the target velocity, in
+          ticks/second. Applied via the controller on the next <code>update()</code>.</td></tr>
+        <tr><td><code>void setController(Controller controller)</code></td><td>Swap the control law;
+          the target is re-read from the new controller.</td></tr>
+      </tbody>
+    </table>
+    <div class="note"><b>Pairs with a feedforward controller.</b> Velocity loops usually want an
+    <code>FFController</code> (or a <code>CompoundController</code> of PID + feedforward) rather than
+    pure PID. See <a href="controllers.html">Controllers</a> for the control laws you can drop in.</div>
+
     <h3>ServoDevice</h3>
     <p>Wraps a <code>Servo</code>. Position commands are cached and written in <code>update()</code>
     only when the target has changed.</p>
@@ -286,6 +340,27 @@ int ticks = motor.getCurrentPosition();</code></pre>
     <p>In practice you'd hold this device inside a <a href="subsystems.html">subsystem</a> — most often
     a <code>DeviceSubsystem</code>, whose <code>update()</code> already refreshes the device for you —
     and expose intent-level methods like <code>raise()</code> or <code>setPower(double)</code>.</p>
+
+    <h2>Example: a closed-loop position motor</h2>
+    <p>Give a <code>PositionMotorDevice</code> a <a href="controllers.html">PID controller</a> and a
+    target in encoder ticks. Each <code>update()</code> runs the controller against the live encoder
+    reading and flushes the resulting power — no <code>RUN_TO_POSITION</code> needed.</p>
+    <pre><code>import com.cdarobotics.cdalib.devices.actuators.PositionMotorDevice;
+import com.cdarobotics.cdalib.controllers.PIDController;
+
+// PIDController(target, kP, kI, kD) — start the target at the resting position.
+PositionMotorDevice arm =
+    new PositionMotorDevice(hardwareMap, "arm", new PIDController(0, 0.004, 0, 0.0002));
+
+// Command a new setpoint whenever the goal changes…
+arm.setPosition(1200);   // ticks
+
+// …and step the loop every cycle. (A DeviceSubsystem would do this for you.)
+arm.update();</code></pre>
+
+    <p>A <code>VelocityMotorDevice</code> is identical but closes on velocity — swap in an
+    <code>FFController</code> (or a <code>CompoundController</code> of PID + feedforward) and call
+    <code>setVelocity(ticksPerSecond)</code> to hold a flywheel speed.</p>
 
 <nav class="pager">
   <a class="prev" href="subsystems.html"><span class="dir">&larr; Previous</span><span class="ttl">Subsystems</span></a>
