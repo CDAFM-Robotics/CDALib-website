@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDALib — FTC robot-code library</title>
+<style>
+  :root{
+    --bg:#0a1c3a; --sidebar:#071429; --panel:#0f2549; --panel-2:#143562; --ink:#eaf1fb;
+    --muted:#9fb4d4; --line:#21406e; --accent:#5b9df0; --accent-2:#8fc0ff; --gold:#ffc72c;
+    --code-bg:#061225; --radius:12px;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65;
+    font-size:16px;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .layout{display:flex;min-height:100vh;align-items:stretch}
+  /* Sidebar: sticky, full height, scrolls on its own so items never get cut off */
+  .sidebar{flex:0 0 258px;width:258px;background:var(--sidebar);border-right:1px solid var(--line);
+    position:sticky;top:0;height:100vh;overflow-y:auto;padding:20px 14px 30px}
+  .sidebar .brand{display:block;font-weight:800;letter-spacing:.3px;font-size:21px;color:var(--ink);
+    padding:6px 10px 14px;border-bottom:1px solid var(--line);margin-bottom:10px}
+  .sidebar .brand:hover{text-decoration:none}
+  .sidebar .brand .lib{color:var(--gold)}
+  nav.side{display:flex;flex-direction:column;gap:2px}
+  nav.side .group{color:var(--gold);font-size:11.5px;font-weight:800;letter-spacing:.09em;
+    text-transform:uppercase;margin:16px 10px 6px}
+  nav.side a{color:var(--muted);padding:7px 10px;border-radius:8px;font-size:14.5px;font-weight:600;
+    border-left:3px solid transparent}
+  nav.side a:hover{color:var(--ink);background:var(--panel);text-decoration:none}
+  nav.side a.active{color:#fff;background:var(--panel);border-left-color:var(--gold)}
+  .content{flex:1 1 auto;min-width:0}
+  main{padding:38px 0 30px}
+  .wrap{max-width:880px;margin:0 auto;padding:0 30px}
+  h1{font-size:34px;line-height:1.2;margin:0 0 8px}
+  h2{font-size:23px;margin:36px 0 12px;padding-top:10px;border-top:1px solid var(--line)}
+  h2::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;
+    background:var(--gold);margin-right:10px;vertical-align:middle}
+  h3{font-size:18px;margin:24px 0 8px}
+  p{margin:12px 0}
+  .lead{font-size:18px;color:var(--muted);margin:6px 0 22px}
+  code{font-family:var(--mono);font-size:.88em;background:var(--panel-2);padding:2px 6px;
+    border-radius:6px;color:var(--accent-2)}
+  pre{background:var(--code-bg);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;overflow:auto;margin:16px 0;line-height:1.55}
+  pre code{background:none;padding:0;color:#d7e2f4;font-size:13.5px}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14.5px}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:var(--panel-2);font-weight:700}
+  tr:nth-child(even) td{background:var(--panel)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;margin:16px 0}
+  .card h3{margin-top:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:18px 0}
+  .note,.warn{border-left:4px solid var(--accent);background:var(--panel);border-radius:8px;
+    padding:12px 16px;margin:16px 0}
+  .warn{border-left-color:var(--gold)}
+  .note b,.warn b{color:var(--ink)}
+  .pill{display:inline-block;background:var(--panel-2);border:1px solid var(--line);color:var(--accent-2);
+    border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;margin-right:6px}
+  ul,ol{margin:12px 0;padding-left:22px}li{margin:5px 0}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}
+  .btn{display:inline-block;background:var(--accent);color:#04122a;font-weight:700;padding:10px 16px;
+    border-radius:9px}
+  .btn:hover{text-decoration:none;filter:brightness(1.08)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn.gold{background:var(--gold);color:#2a2000}
+  .hero{background:radial-gradient(1100px 380px at 10% -20%,rgba(91,157,240,.22),transparent 60%),
+    radial-gradient(760px 320px at 95% -10%,rgba(255,199,44,.14),transparent 55%);
+    border:1px solid var(--line);border-radius:16px;padding:36px 30px;margin-top:4px}
+  .hero h1{font-size:44px}.hero .lead{font-size:20px;max-width:620px}
+  .hero h1 .lib{color:var(--gold)}
+  /* Prev / next pager */
+  .pager{display:flex;gap:14px;margin:40px 0 10px;border-top:1px solid var(--line);padding-top:22px}
+  .pager a{flex:1 1 0;display:flex;flex-direction:column;gap:3px;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+  .pager a:hover{text-decoration:none;border-color:var(--accent);background:var(--panel-2)}
+  .pager .dir{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+  .pager .ttl{font-size:16px;font-weight:700;color:var(--ink)}
+  .pager a.next{text-align:right}
+  footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:13px;padding:20px 0 40px}
+  footer.site .wrap{display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;max-width:880px}
+  @media(max-width:900px){
+    .layout{flex-direction:column}
+    .sidebar{position:static;height:auto;width:auto;flex:none;border-right:none;
+      border-bottom:1px solid var(--line)}
+    nav.side{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px 8px}
+    nav.side .group{grid-column:1/-1}
+    h1{font-size:28px}.hero h1{font-size:32px}.pager{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <a class="brand" href="index.html">CDA<span class="lib">Lib</span></a>
+  <nav class="side">
+    <a class="active" href="index.html">Home</a>
+    <div class="group">Setup</div>
+    <a href="overview.html">Overview</a>
+    <a href="installation.html">Installation</a>
+    <div class="group">Getting Started</div>
+    <a href="getting-started.html">Getting Started</a>
+    <div class="group">Reference</div>
+    <a href="modular-opmode.html">ModularOpMode</a>
+    <a href="subsystems.html">Subsystems</a>
+    <a href="devices.html">Devices</a>
+    <a href="controllers.html">Controllers</a>
+    <a href="bindings.html">Bindings</a>
+    <a href="tasks.html">Tasks</a>
+    <a href="modules.html">Modules</a>
+    <a href="telemetry.html">Telemetry</a>
+    <a href="javadoc/index.html">API (Javadoc)</a>
+  </nav>
+</aside>
+<div class="content">
+<main>
+  <div class="wrap">
+
+    <section class="hero">
+      <span class="pill">FTC &middot; v0.2.0</span>
+      <span class="pill">PedroPathing 3.0</span>
+      <span class="pill">PhotonFTC</span>
+      <h1>CDA<span style="color:var(--accent-2)">Lib</span></h1>
+      <p class="lead">A FIRST Tech Challenge robot-code library. Build OpModes out of reusable
+      parts &mdash; subsystems, devices, controllers, bindings, and a task system &mdash; with Lynx
+      bulk caching and low loop times handled for you.</p>
+      <div class="btnrow">
+        <a class="btn" href="getting-started.html">Get started</a>
+        <a class="btn ghost" href="overview.html">Read the overview</a>
+        <a class="btn ghost" href="javadoc/index.html">API reference</a>
+      </div>
+    </section>
+
+    <h2>What CDALib gives you</h2>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="modular-opmode.html">ModularOpMode</a></h3>
+        <p>A base OpMode that drives your registered subsystems and modules through their
+        init / start / update lifecycles &mdash; and manages Lynx bulk caching so each loop does a
+        single bulk read.</p>
+      </div>
+      <div class="card">
+        <h3><a href="subsystems.html">Subsystems &amp; Devices</a></h3>
+        <p>Structured wrappers for motors, servos, CR servos, and sensors (IMU, color, distance,
+        touch, analog/digital input, REV Color Sensor V3).</p>
+      </div>
+      <div class="card">
+        <h3><a href="controllers.html">Controllers</a></h3>
+        <p>PID, feedforward, and composable controllers for closed-loop mechanisms.</p>
+      </div>
+      <div class="card">
+        <h3><a href="tasks.html">Task system</a></h3>
+        <p>Sequential, parallel, race, deadline, repeat, deferred, and path-following tasks that
+        compose with a fluent builder API.</p>
+      </div>
+      <div class="card">
+        <h3><a href="bindings.html">Bindings</a></h3>
+        <p>Declarative, named gamepad button and analog bindings &mdash; including toggles &mdash;
+        that decouple input wiring from behavior.</p>
+      </div>
+      <div class="card">
+        <h3><a href="modules.html">Modules</a></h3>
+        <p>OpMode-shaped units of cross-cutting behavior, including a ready-made PedroPathing
+        TeleOp drive module.</p>
+      </div>
+    </div>
+
+    <h2>Quick start</h2>
+    <p>Extend <code>ModularOpMode</code>, register your subsystems in <code>preload()</code>, and
+    CDALib runs the lifecycle for you:</p>
+    <pre><code>import com.cdarobotics.cdalib.opmodes.ModularOpMode;
+import com.outoftheboxrobotics.photoncore.Photon;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+@Photon                                   // optional: enable PhotonFTC for lower loop times
+@TeleOp(name = "My TeleOp (CDALib)")
+public class MyTeleOp extends ModularOpMode {
+
+    private MyDriveSubsystem drive;
+
+    @Override
+    protected void preload() {
+        drive = new MyDriveSubsystem(hardwareMap);
+        registerSubsystem(drive);         // driven through init/start/update automatically
+        // installModule(...) to add modules, bindingManager for gamepad bindings
+    }
+}</code></pre>
+    <div class="btnrow">
+      <a class="btn" href="installation.html">Install CDALib</a>
+      <a class="btn ghost" href="getting-started.html">Full walkthrough</a>
+    </div>
+
+    <div class="note">
+      <b>New here?</b> Start with the <a href="overview.html">Overview</a> to see how the pieces
+      fit together, then follow <a href="getting-started.html">Getting Started</a>. Every class and
+      method is documented in the <a href="javadoc/index.html">API reference (Javadoc)</a>.
+    </div>
+
+<nav class="pager">
+  <a class="next" href="overview.html"><span class="dir">Next &rarr;</span><span class="ttl">Overview</span></a>
+</nav>
+  </div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <span>CDALib 0.2.0 &middot; CDAFM Robotics</span>
+    <span>Built on PedroPathing 3.0 &amp; PhotonFTC &middot; MIT License</span>
+  </div>
+</footer>
+</div>
+</div>
+</body>
+</html>

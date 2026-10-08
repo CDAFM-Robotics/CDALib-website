@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Devices — CDALib</title>
+<style>
+  :root{
+    --bg:#0a1c3a; --sidebar:#071429; --panel:#0f2549; --panel-2:#143562; --ink:#eaf1fb;
+    --muted:#9fb4d4; --line:#21406e; --accent:#5b9df0; --accent-2:#8fc0ff; --gold:#ffc72c;
+    --code-bg:#061225; --radius:12px;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65;
+    font-size:16px;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .layout{display:flex;min-height:100vh;align-items:stretch}
+  /* Sidebar: sticky, full height, scrolls on its own so items never get cut off */
+  .sidebar{flex:0 0 258px;width:258px;background:var(--sidebar);border-right:1px solid var(--line);
+    position:sticky;top:0;height:100vh;overflow-y:auto;padding:20px 14px 30px}
+  .sidebar .brand{display:block;font-weight:800;letter-spacing:.3px;font-size:21px;color:var(--ink);
+    padding:6px 10px 14px;border-bottom:1px solid var(--line);margin-bottom:10px}
+  .sidebar .brand:hover{text-decoration:none}
+  .sidebar .brand .lib{color:var(--gold)}
+  nav.side{display:flex;flex-direction:column;gap:2px}
+  nav.side .group{color:var(--gold);font-size:11.5px;font-weight:800;letter-spacing:.09em;
+    text-transform:uppercase;margin:16px 10px 6px}
+  nav.side a{color:var(--muted);padding:7px 10px;border-radius:8px;font-size:14.5px;font-weight:600;
+    border-left:3px solid transparent}
+  nav.side a:hover{color:var(--ink);background:var(--panel);text-decoration:none}
+  nav.side a.active{color:#fff;background:var(--panel);border-left-color:var(--gold)}
+  .content{flex:1 1 auto;min-width:0}
+  main{padding:38px 0 30px}
+  .wrap{max-width:880px;margin:0 auto;padding:0 30px}
+  h1{font-size:34px;line-height:1.2;margin:0 0 8px}
+  h2{font-size:23px;margin:36px 0 12px;padding-top:10px;border-top:1px solid var(--line)}
+  h2::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;
+    background:var(--gold);margin-right:10px;vertical-align:middle}
+  h3{font-size:18px;margin:24px 0 8px}
+  p{margin:12px 0}
+  .lead{font-size:18px;color:var(--muted);margin:6px 0 22px}
+  code{font-family:var(--mono);font-size:.88em;background:var(--panel-2);padding:2px 6px;
+    border-radius:6px;color:var(--accent-2)}
+  pre{background:var(--code-bg);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;overflow:auto;margin:16px 0;line-height:1.55}
+  pre code{background:none;padding:0;color:#d7e2f4;font-size:13.5px}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14.5px}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:var(--panel-2);font-weight:700}
+  tr:nth-child(even) td{background:var(--panel)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;margin:16px 0}
+  .card h3{margin-top:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:18px 0}
+  .note,.warn{border-left:4px solid var(--accent);background:var(--panel);border-radius:8px;
+    padding:12px 16px;margin:16px 0}
+  .warn{border-left-color:var(--gold)}
+  .note b,.warn b{color:var(--ink)}
+  .pill{display:inline-block;background:var(--panel-2);border:1px solid var(--line);color:var(--accent-2);
+    border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;margin-right:6px}
+  ul,ol{margin:12px 0;padding-left:22px}li{margin:5px 0}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}
+  .btn{display:inline-block;background:var(--accent);color:#04122a;font-weight:700;padding:10px 16px;
+    border-radius:9px}
+  .btn:hover{text-decoration:none;filter:brightness(1.08)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn.gold{background:var(--gold);color:#2a2000}
+  .hero{background:radial-gradient(1100px 380px at 10% -20%,rgba(91,157,240,.22),transparent 60%),
+    radial-gradient(760px 320px at 95% -10%,rgba(255,199,44,.14),transparent 55%);
+    border:1px solid var(--line);border-radius:16px;padding:36px 30px;margin-top:4px}
+  .hero h1{font-size:44px}.hero .lead{font-size:20px;max-width:620px}
+  .hero h1 .lib{color:var(--gold)}
+  /* Prev / next pager */
+  .pager{display:flex;gap:14px;margin:40px 0 10px;border-top:1px solid var(--line);padding-top:22px}
+  .pager a{flex:1 1 0;display:flex;flex-direction:column;gap:3px;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+  .pager a:hover{text-decoration:none;border-color:var(--accent);background:var(--panel-2)}
+  .pager .dir{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+  .pager .ttl{font-size:16px;font-weight:700;color:var(--ink)}
+  .pager a.next{text-align:right}
+  footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:13px;padding:20px 0 40px}
+  footer.site .wrap{display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;max-width:880px}
+  @media(max-width:900px){
+    .layout{flex-direction:column}
+    .sidebar{position:static;height:auto;width:auto;flex:none;border-right:none;
+      border-bottom:1px solid var(--line)}
+    nav.side{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px 8px}
+    nav.side .group{grid-column:1/-1}
+    h1{font-size:28px}.hero h1{font-size:32px}.pager{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <a class="brand" href="index.html">CDA<span class="lib">Lib</span></a>
+  <nav class="side">
+    <a href="index.html">Home</a>
+    <div class="group">Setup</div>
+    <a href="overview.html">Overview</a>
+    <a href="installation.html">Installation</a>
+    <div class="group">Getting Started</div>
+    <a href="getting-started.html">Getting Started</a>
+    <div class="group">Reference</div>
+    <a href="modular-opmode.html">ModularOpMode</a>
+    <a href="subsystems.html">Subsystems</a>
+    <a class="active" href="devices.html">Devices</a>
+    <a href="controllers.html">Controllers</a>
+    <a href="bindings.html">Bindings</a>
+    <a href="tasks.html">Tasks</a>
+    <a href="modules.html">Modules</a>
+    <a href="telemetry.html">Telemetry</a>
+    <a href="javadoc/index.html">API (Javadoc)</a>
+  </nav>
+</aside>
+<div class="content">
+<main>
+  <div class="wrap">
+
+
+    <h1>Devices</h1>
+    <p class="lead">A <code>Device</code> is a thin wrapper over a single FTC SDK hardware object — a
+    motor, a servo, a sensor — with one job: an <code>update()</code> that is bulk-cache friendly.
+    Devices are the building blocks that <a href="subsystems.html">subsystems</a> drive.</p>
+
+    <p><code>Device</code> is an abstract class with a single method:</p>
+    <pre><code>public abstract class Device {
+    public abstract void update();
+}</code></pre>
+
+    <p>Everything a device does flows through <code>update()</code>, called once per loop:</p>
+    <ul>
+      <li><b>Actuator devices</b> (motor, servo, CR servo) <em>cache</em> the state you command and
+      flush it to hardware in <code>update()</code> — and only when the value has actually changed.
+      Setting the same power every loop then costs no bus write. This is <b>write caching</b>.</li>
+      <li><b>Sensor devices</b> read hardware once in <code>update()</code> and cache the value, so
+      inspecting several channels later in the loop costs a single hardware read. This is
+      <b>read caching</b>.</li>
+    </ul>
+
+    <p>The common pattern is: <b>set desired state, then let <code>update()</code> apply it.</b>
+    Setters that configure or command return <code>this</code>, so the fluent
+    <code>setPower(x).update()</code> style works:</p>
+    <pre><code>motor.setPower(0.75).update();          // command, then flush
+servo.setPosition(0.5).update();
+double yaw = imu.getYaw(AngleUnit.DEGREES);   // reads the value cached by update()</code></pre>
+
+    <div class="note"><b>You usually don't call <code>update()</code> yourself.</b> A
+    <a href="subsystems.html">DeviceSubsystem</a> refreshes its device every loop automatically, and
+    <a href="modular-opmode.html">ModularOpMode</a> pairs this with Lynx <code>MANUAL</code> bulk
+    caching so all your reads land in one bulk transaction per hub. See
+    <a href="modular-opmode.html">ModularOpMode &rsaquo; Lynx bulk caching</a>.</div>
+
+    <p>Every device offers two constructors: one taking an already-resolved SDK object, and one taking
+    <code>(HardwareMap, String name)</code> to resolve it by configured name. Each also exposes a
+    getter (<code>getMotor()</code>, <code>getServo()</code>, <code>getSensor()</code>, …) for SDK
+    operations not surfaced here.</p>
+
+    <h2>Actuators</h2>
+    <p>Actuator devices write-cache their commands and only flush a changed value in
+    <code>update()</code>, collapsing redundant bus writes.</p>
+
+    <h3>MotorDevice</h3>
+    <p>Wraps a <code>DcMotorEx</code>. Power commands are cached and written in <code>update()</code>
+    only when they've changed meaningfully — joystick jitter and steady holds cost no bus transaction.
+    The first command and an exact stop (<code>0.0</code>) are always flushed. Configuration and read
+    setters return <code>this</code> for chaining.</p>
+    <table>
+      <thead><tr><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>MotorDevice setPower(double power)</code></td><td>Power to command on the next
+          <code>update()</code>. Range [-1.0, 1.0].</td></tr>
+        <tr><td><code>MotorDevice setWriteThreshold(double t)</code></td><td>Minimum power change (vs.
+          the last written value) that triggers an actual write. Larger collapses more redundant
+          writes; <code>0</code> flushes every change. Default 0.005.</td></tr>
+        <tr><td><code>MotorDevice setDirection(DcMotorSimple.Direction)</code></td><td>Rotation
+          direction.</td></tr>
+        <tr><td><code>MotorDevice setZeroPowerBehavior(DcMotor.ZeroPowerBehavior)</code></td><td>What
+          the motor does at zero power — <code>BRAKE</code> or <code>FLOAT</code>.</td></tr>
+        <tr><td><code>MotorDevice setMode(DcMotor.RunMode)</code></td><td>Run mode (e.g.
+          <code>RUN_USING_ENCODER</code>, <code>RUN_TO_POSITION</code>).</td></tr>
+        <tr><td><code>double getPower()</code></td><td>Last commanded power (not necessarily flushed
+          yet).</td></tr>
+        <tr><td><code>int getCurrentPosition()</code></td><td>Encoder position, in ticks.</td></tr>
+        <tr><td><code>double getVelocity()</code></td><td>Velocity, in ticks/second.</td></tr>
+        <tr><td><code>double getCurrent(CurrentUnit)</code></td><td>Current draw in the given unit.</td></tr>
+        <tr><td><code>DcMotorEx getMotor()</code></td><td>The wrapped SDK motor.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>ServoDevice</h3>
+    <p>Wraps a <code>Servo</code>. Position commands are cached and written in <code>update()</code>
+    only when the target has changed.</p>
+    <table>
+      <thead><tr><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>ServoDevice setPosition(double position)</code></td><td>Position to command on
+          the next <code>update()</code>. Range [0.0, 1.0].</td></tr>
+        <tr><td><code>double getPosition()</code></td><td>Last commanded position.</td></tr>
+        <tr><td><code>ServoDevice setDirection(Servo.Direction)</code></td><td>Servo direction.</td></tr>
+        <tr><td><code>ServoDevice scaleRange(double min, double max)</code></td><td>Constrains the
+          usable range (see <code>Servo.scaleRange</code>).</td></tr>
+        <tr><td><code>Servo getServo()</code></td><td>The wrapped SDK servo.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>CRServoDevice</h3>
+    <p>Wraps a <code>CRServo</code> (continuous-rotation servo). Power commands are cached and written
+    in <code>update()</code> only when the target has changed.</p>
+    <table>
+      <thead><tr><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>CRServoDevice setPower(double power)</code></td><td>Power to command on the next
+          <code>update()</code>. Range [-1.0, 1.0].</td></tr>
+        <tr><td><code>double getPower()</code></td><td>Last commanded power.</td></tr>
+        <tr><td><code>CRServoDevice setDirection(DcMotorSimple.Direction)</code></td><td>CR servo
+          direction.</td></tr>
+        <tr><td><code>CRServo getServo()</code></td><td>The wrapped SDK CR servo.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Sensors</h2>
+    <p>Sensor devices read hardware once per <code>update()</code> and cache the result, so the getters
+    return the value from the most recent update in constant time.</p>
+    <table>
+      <thead><tr><th>Device</th><th>Wraps</th><th>Typical reads</th></tr></thead>
+      <tbody>
+        <tr><td><code>IMUDevice</code></td><td><code>IMU</code> (universal)</td>
+          <td><code>getYaw/getPitch/getRoll(AngleUnit)</code>; <code>resetYaw()</code>. Cached per
+          <code>update()</code>. IMU must be initialized separately.</td></tr>
+        <tr><td><code>ColorSensorDevice</code></td><td><code>ColorSensor</code></td>
+          <td><code>red()</code>, <code>green()</code>, <code>blue()</code>, <code>alpha()</code>,
+          <code>argb()</code>; <code>enableLed(boolean)</code>.</td></tr>
+        <tr><td><code>RevColorSensorV3Device</code></td><td><code>RevColorSensorV3</code></td>
+          <td>Normalized <code>red/green/blue()</code>, raw <code>redRaw/greenRaw/blueRaw()</code>,
+          <code>getHue/getSaturation/getValue()</code>, <code>getDistance(DistanceUnit)</code>,
+          <code>setGain(float)</code>. One 14-byte I2C read per update.</td></tr>
+        <tr><td><code>DistanceSensorDevice</code></td><td><code>DistanceSensor</code></td>
+          <td><code>getDistance(DistanceUnit)</code>, <code>getDistanceCm()</code>.</td></tr>
+        <tr><td><code>TouchSensorDevice</code></td><td><code>TouchSensor</code></td>
+          <td><code>isPressed()</code>, <code>getValue()</code>.</td></tr>
+        <tr><td><code>AnalogInputDevice</code></td><td><code>AnalogInput</code></td>
+          <td><code>getVoltage()</code>, <code>getMaxVoltage()</code>.</td></tr>
+        <tr><td><code>DigitalInputDevice</code></td><td><code>DigitalChannel</code> (input mode)</td>
+          <td><code>getState()</code>. Put in <code>INPUT</code> mode at construction.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note"><b>I2C is not bulk-cached.</b> The IMU and REV Color Sensor V3 are I2C devices,
+    which Lynx bulk caching does not cover. <code>RevColorSensorV3Device</code> works around this by
+    pulling proximity plus all three colour channels off the sensor in a <em>single</em> 14-byte I2C
+    read per <code>update()</code> and decoding the rest in software. For the IMU in a hot loop, prefer
+    the threaded reader — see <a href="subsystems.html">ThreadedIMU</a>.</div>
+
+    <h2>NullDevice</h2>
+    <p><code>NullDevice</code> is a no-op device whose <code>update()</code> does nothing. Use it as a
+    placeholder for optional or missing hardware so a subsystem can hold a non-null device reference
+    and run unchanged when the real device isn't present.</p>
+
+    <h2>Example: driving a motor</h2>
+    <p>Construct a <code>MotorDevice</code> from the hardware map, configure it once, then command and
+    flush it each loop.</p>
+    <pre><code>import com.cdarobotics.cdalib.devices.actuators.MotorDevice;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+// Resolve by configured name (matches your robot configuration).
+MotorDevice motor = new MotorDevice(hardwareMap, "arm");
+
+// One-time configuration — fluent, chainable.
+motor.setDirection(DcMotorSimple.Direction.FORWARD)
+     .setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+// Every loop: command the power you want, then flush it.
+// The write only hits the bus if the power changed meaningfully.
+motor.setPower(0.6).update();
+
+// Read cached telemetry (encoder read happens on the SDK object directly).
+int ticks = motor.getCurrentPosition();</code></pre>
+
+    <p>In practice you'd hold this device inside a <a href="subsystems.html">subsystem</a> — most often
+    a <code>DeviceSubsystem</code>, whose <code>update()</code> already refreshes the device for you —
+    and expose intent-level methods like <code>raise()</code> or <code>setPower(double)</code>.</p>
+
+<nav class="pager">
+  <a class="prev" href="subsystems.html"><span class="dir">&larr; Previous</span><span class="ttl">Subsystems</span></a>
+  <a class="next" href="controllers.html"><span class="dir">Next &rarr;</span><span class="ttl">Controllers</span></a>
+</nav>
+  </div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <span>CDALib 0.2.0 &middot; CDAFM Robotics</span>
+    <span>Built on PedroPathing 3.0 &amp; PhotonFTC &middot; MIT License</span>
+  </div>
+</footer>
+</div>
+</div>
+</body>
+</html>

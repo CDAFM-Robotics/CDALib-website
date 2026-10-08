@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ModularOpMode — CDALib</title>
+<style>
+  :root{
+    --bg:#0a1c3a; --sidebar:#071429; --panel:#0f2549; --panel-2:#143562; --ink:#eaf1fb;
+    --muted:#9fb4d4; --line:#21406e; --accent:#5b9df0; --accent-2:#8fc0ff; --gold:#ffc72c;
+    --code-bg:#061225; --radius:12px;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65;
+    font-size:16px;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .layout{display:flex;min-height:100vh;align-items:stretch}
+  /* Sidebar: sticky, full height, scrolls on its own so items never get cut off */
+  .sidebar{flex:0 0 258px;width:258px;background:var(--sidebar);border-right:1px solid var(--line);
+    position:sticky;top:0;height:100vh;overflow-y:auto;padding:20px 14px 30px}
+  .sidebar .brand{display:block;font-weight:800;letter-spacing:.3px;font-size:21px;color:var(--ink);
+    padding:6px 10px 14px;border-bottom:1px solid var(--line);margin-bottom:10px}
+  .sidebar .brand:hover{text-decoration:none}
+  .sidebar .brand .lib{color:var(--gold)}
+  nav.side{display:flex;flex-direction:column;gap:2px}
+  nav.side .group{color:var(--gold);font-size:11.5px;font-weight:800;letter-spacing:.09em;
+    text-transform:uppercase;margin:16px 10px 6px}
+  nav.side a{color:var(--muted);padding:7px 10px;border-radius:8px;font-size:14.5px;font-weight:600;
+    border-left:3px solid transparent}
+  nav.side a:hover{color:var(--ink);background:var(--panel);text-decoration:none}
+  nav.side a.active{color:#fff;background:var(--panel);border-left-color:var(--gold)}
+  .content{flex:1 1 auto;min-width:0}
+  main{padding:38px 0 30px}
+  .wrap{max-width:880px;margin:0 auto;padding:0 30px}
+  h1{font-size:34px;line-height:1.2;margin:0 0 8px}
+  h2{font-size:23px;margin:36px 0 12px;padding-top:10px;border-top:1px solid var(--line)}
+  h2::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;
+    background:var(--gold);margin-right:10px;vertical-align:middle}
+  h3{font-size:18px;margin:24px 0 8px}
+  p{margin:12px 0}
+  .lead{font-size:18px;color:var(--muted);margin:6px 0 22px}
+  code{font-family:var(--mono);font-size:.88em;background:var(--panel-2);padding:2px 6px;
+    border-radius:6px;color:var(--accent-2)}
+  pre{background:var(--code-bg);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;overflow:auto;margin:16px 0;line-height:1.55}
+  pre code{background:none;padding:0;color:#d7e2f4;font-size:13.5px}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14.5px}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:var(--panel-2);font-weight:700}
+  tr:nth-child(even) td{background:var(--panel)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;margin:16px 0}
+  .card h3{margin-top:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:18px 0}
+  .note,.warn{border-left:4px solid var(--accent);background:var(--panel);border-radius:8px;
+    padding:12px 16px;margin:16px 0}
+  .warn{border-left-color:var(--gold)}
+  .note b,.warn b{color:var(--ink)}
+  .pill{display:inline-block;background:var(--panel-2);border:1px solid var(--line);color:var(--accent-2);
+    border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;margin-right:6px}
+  ul,ol{margin:12px 0;padding-left:22px}li{margin:5px 0}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}
+  .btn{display:inline-block;background:var(--accent);color:#04122a;font-weight:700;padding:10px 16px;
+    border-radius:9px}
+  .btn:hover{text-decoration:none;filter:brightness(1.08)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn.gold{background:var(--gold);color:#2a2000}
+  .hero{background:radial-gradient(1100px 380px at 10% -20%,rgba(91,157,240,.22),transparent 60%),
+    radial-gradient(760px 320px at 95% -10%,rgba(255,199,44,.14),transparent 55%);
+    border:1px solid var(--line);border-radius:16px;padding:36px 30px;margin-top:4px}
+  .hero h1{font-size:44px}.hero .lead{font-size:20px;max-width:620px}
+  .hero h1 .lib{color:var(--gold)}
+  /* Prev / next pager */
+  .pager{display:flex;gap:14px;margin:40px 0 10px;border-top:1px solid var(--line);padding-top:22px}
+  .pager a{flex:1 1 0;display:flex;flex-direction:column;gap:3px;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+  .pager a:hover{text-decoration:none;border-color:var(--accent);background:var(--panel-2)}
+  .pager .dir{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+  .pager .ttl{font-size:16px;font-weight:700;color:var(--ink)}
+  .pager a.next{text-align:right}
+  footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:13px;padding:20px 0 40px}
+  footer.site .wrap{display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;max-width:880px}
+  @media(max-width:900px){
+    .layout{flex-direction:column}
+    .sidebar{position:static;height:auto;width:auto;flex:none;border-right:none;
+      border-bottom:1px solid var(--line)}
+    nav.side{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px 8px}
+    nav.side .group{grid-column:1/-1}
+    h1{font-size:28px}.hero h1{font-size:32px}.pager{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <a class="brand" href="index.html">CDA<span class="lib">Lib</span></a>
+  <nav class="side">
+    <a href="index.html">Home</a>
+    <div class="group">Setup</div>
+    <a href="overview.html">Overview</a>
+    <a href="installation.html">Installation</a>
+    <div class="group">Getting Started</div>
+    <a href="getting-started.html">Getting Started</a>
+    <div class="group">Reference</div>
+    <a class="active" href="modular-opmode.html">ModularOpMode</a>
+    <a href="subsystems.html">Subsystems</a>
+    <a href="devices.html">Devices</a>
+    <a href="controllers.html">Controllers</a>
+    <a href="bindings.html">Bindings</a>
+    <a href="tasks.html">Tasks</a>
+    <a href="modules.html">Modules</a>
+    <a href="telemetry.html">Telemetry</a>
+    <a href="javadoc/index.html">API (Javadoc)</a>
+  </nav>
+</aside>
+<div class="content">
+<main>
+  <div class="wrap">
+
+
+    <h1>ModularOpMode</h1>
+    <p class="lead">The base OpMode you subclass to assemble a robot out of reusable parts. Register
+    subsystems and modules once, and <code>ModularOpMode</code> drives their whole lifecycle for you —
+    init, start, loop, and stop — while managing Lynx hub bulk caching so every cycle reads all your
+    sensors in a single transaction.</p>
+
+    <p><code>ModularOpMode</code> extends the FTC SDK's iterative <code>OpMode</code>. Instead of
+    overriding <code>init()</code>/<code>loop()</code> directly and wiring hardware by hand, you
+    override a single hook, <code>preload()</code>, to declare what your robot is made of. From there
+    the base class forwards each SDK lifecycle phase to every registered
+    <a href="subsystems.html">subsystem</a> and installed <a href="modules.html">module</a>, in the
+    order you registered them.</p>
+
+    <pre><code>public abstract class ModularOpMode extends OpMode {
+    protected final BindingManager bindingManager = new BindingManager();
+
+    protected abstract void preload();
+
+    protected void registerSubsystem(Subsystem subsystem);
+    protected void installModule(Module module);
+    protected void setBulkCachingMode(LynxModule.BulkCachingMode mode);
+}</code></pre>
+
+    <h2>Lifecycle</h2>
+    <p>Each phase of the SDK OpMode lifecycle is forwarded to your parts. Subsystems always run before
+    modules within a phase, and both run in registration order.</p>
+
+    <table>
+      <thead>
+        <tr><th>Phase</th><th>What <code>ModularOpMode</code> does</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>init()</code></td>
+          <td>Runs your <code>preload()</code>; discovers every <code>LynxModule</code> from the
+          hardware map and applies the bulk-caching mode to each; then calls <code>subsystem.init()</code>
+          on every subsystem followed by <code>module.init()</code> on every module.</td>
+        </tr>
+        <tr>
+          <td><code>init_loop()</code></td>
+          <td>Calls <code>subsystem.init_loop()</code> on each subsystem, then
+          <code>module.init_loop()</code> on each module. Repeats while the driver waits on the init
+          screen.</td>
+        </tr>
+        <tr>
+          <td><code>start()</code></td>
+          <td>Calls <code>subsystem.start()</code> on each subsystem, then <code>module.start()</code>
+          on each module, then polls <code>taskMaster.update()</code> once.</td>
+        </tr>
+        <tr>
+          <td><code>loop()</code></td>
+          <td>In <code>MANUAL</code> mode, clears every hub's bulk cache once; then calls
+          <code>subsystem.update()</code> on each subsystem, <code>module.loop()</code> on each module,
+          and finally polls <code>taskMaster.update()</code>.</td>
+        </tr>
+        <tr>
+          <td><code>stop()</code></td>
+          <td>Calls <code>subsystem.stop()</code> on each subsystem, then <code>module.stop()</code>
+          on each module, so they can safe or release hardware.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note"><b>Note.</b> Subsystems expose <code>update()</code> for the main loop, while
+    modules expose <code>loop()</code>. The <code>TaskMaster</code> is polled at the end of both
+    <code>start()</code> and <code>loop()</code>, so queued <a href="tasks.html">tasks</a> advance
+    every cycle. See <a href="subsystems.html">Subsystems</a> and <a href="modules.html">Modules</a>
+    for the full contract of each.</div>
+
+    <h2>Registration</h2>
+    <p>You never call the lifecycle methods yourself. Instead you declare your robot in
+    <code>preload()</code>, which runs once at the very top of <code>init()</code> before anything is
+    initialized.</p>
+
+    <table>
+      <thead><tr><th>Member</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>protected abstract void preload()</code></td>
+          <td>The one method you must implement. Build the robot here: register subsystems, install
+          modules, and optionally change the bulk-caching mode. Called once at the start of
+          <code>init()</code>.</td>
+        </tr>
+        <tr>
+          <td><code>void registerSubsystem(Subsystem subsystem)</code></td>
+          <td>Adds a subsystem to be driven every phase, in registration order. Call from
+          <code>preload()</code>.</td>
+        </tr>
+        <tr>
+          <td><code>void installModule(Module module)</code></td>
+          <td>Adds a module to be driven every phase, in installation order. Call from
+          <code>preload()</code>.</td>
+        </tr>
+        <tr>
+          <td><code>protected final BindingManager bindingManager</code></td>
+          <td>The shared <code>BindingManager</code> for this OpMode. Modules such as
+          <code>BindingModule</code> and <code>TeleOpPedroModule</code> register and query gamepad
+          <a href="bindings.html">bindings</a> against it; it is exposed to subclasses so you can wire
+          your own bindings too.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <pre><code>@TeleOp(name = "My TeleOp")
+public class MyTeleOp extends ModularOpMode {
+
+    private DriveSubsystem drive;
+
+    @Override
+    protected void preload() {
+        drive = new DriveSubsystem(hardwareMap);
+        registerSubsystem(drive);
+        registerSubsystem(new ThreadedIMU(hardwareMap, "imu"));
+
+        // Modules typically wire gamepad bindings against bindingManager.
+        installModule(new TeleOpPedroModule(/* ... */));
+    }
+}</code></pre>
+
+    <h2>Lynx bulk caching</h2>
+    <p>Every Control Hub and Expansion Hub (a "Lynx" module) can batch its sensor and encoder reads.
+    <code>ModularOpMode</code> sets the caching mode on every hub in <code>init()</code>; the mode
+    defaults to <code>MANUAL</code> and can be changed from <code>preload()</code>:</p>
+
+    <pre><code>protected void setBulkCachingMode(LynxModule.BulkCachingMode mode)</code></pre>
+
+    <p>In <code>MANUAL</code> mode the cache is cleared exactly once, at the top of each
+    <code>loop()</code>. The first hardware read after that clear pulls <em>every</em> sensor and
+    encoder off the hub in a single bulk transaction; every subsequent read that loop is served from
+    that in-memory snapshot instead of hitting the bus. Because CDALib's <a href="devices.html">devices</a>
+    read hardware in their <code>update()</code>, this means a full loop's worth of sensor reads costs
+    one round-trip to each hub rather than one per sensor.</p>
+
+    <div class="note"><b>Why it matters.</b> Each USB round-trip to a Lynx hub costs roughly 2–3&nbsp;ms.
+    A robot polling six sensors the naive way spends most of its loop blocked on the bus; folding those
+    into one bulk read per hub can cut loop times dramatically and keep control loops responsive.</div>
+
+    <div class="warn"><b>The one rule of MANUAL mode.</b> Because the cache is cleared only once per
+    loop, reading the same sensor twice in a loop returns the same cached value. That is exactly what
+    you want here — CDALib devices cache their reads on purpose — but it means you should read a given
+    sensor at most once per cycle through its device's <code>update()</code>. Do not clear the cache
+    yourself mid-loop.</div>
+
+    <p>I2C devices (such as the universal IMU or a REV Color Sensor V3) are <em>not</em> covered by
+    Lynx bulk caching. CDALib handles those separately: see
+    <a href="subsystems.html">ThreadedIMU</a> and the
+    <a href="devices.html">RevColorSensorV3Device</a>, both of which minimize per-loop I2C cost.</p>
+
+    <h2>PhotonFTC</h2>
+    <p>For teams that want even lower loop times, annotate your concrete OpMode subclass with
+    <code>@Photon</code>. PhotonCore then swaps in its optimized motor and servo controllers under the
+    hood.</p>
+
+    <pre><code>@Photon
+@TeleOp(name = "My TeleOp")
+public class MyTeleOp extends ModularOpMode {
+    // ...
+}</code></pre>
+
+    <p>Photon pairs naturally with the default <code>MANUAL</code> bulk-caching mode used by
+    <code>ModularOpMode</code> — one cache clear per <code>loop()</code>. Leave the caching mode on
+    <code>MANUAL</code> when Photon is enabled; the two optimizations compound rather than conflict.</p>
+
+<nav class="pager">
+  <a class="prev" href="getting-started.html"><span class="dir">&larr; Previous</span><span class="ttl">Getting Started</span></a>
+  <a class="next" href="subsystems.html"><span class="dir">Next &rarr;</span><span class="ttl">Subsystems</span></a>
+</nav>
+  </div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <span>CDALib 0.2.0 &middot; CDAFM Robotics</span>
+    <span>Built on PedroPathing 3.0 &amp; PhotonFTC &middot; MIT License</span>
+  </div>
+</footer>
+</div>
+</div>
+</body>
+</html>

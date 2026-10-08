@@ -1,0 +1,10 @@
+com.cdarobotics.cdalib.bindings
+com.cdarobotics.cdalib.controllers
+com.cdarobotics.cdalib.devices
+com.cdarobotics.cdalib.devices.actuators
+com.cdarobotics.cdalib.devices.sensors
+com.cdarobotics.cdalib.opmodes
+com.cdarobotics.cdalib.opmodes.modules
+com.cdarobotics.cdalib.subsystems
+com.cdarobotics.cdalib.tasks
+com.cdarobotics.cdalib.telemetry

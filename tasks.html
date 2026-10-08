@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tasks — CDALib</title>
+<style>
+  :root{
+    --bg:#0a1c3a; --sidebar:#071429; --panel:#0f2549; --panel-2:#143562; --ink:#eaf1fb;
+    --muted:#9fb4d4; --line:#21406e; --accent:#5b9df0; --accent-2:#8fc0ff; --gold:#ffc72c;
+    --code-bg:#061225; --radius:12px;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65;
+    font-size:16px;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .layout{display:flex;min-height:100vh;align-items:stretch}
+  /* Sidebar: sticky, full height, scrolls on its own so items never get cut off */
+  .sidebar{flex:0 0 258px;width:258px;background:var(--sidebar);border-right:1px solid var(--line);
+    position:sticky;top:0;height:100vh;overflow-y:auto;padding:20px 14px 30px}
+  .sidebar .brand{display:block;font-weight:800;letter-spacing:.3px;font-size:21px;color:var(--ink);
+    padding:6px 10px 14px;border-bottom:1px solid var(--line);margin-bottom:10px}
+  .sidebar .brand:hover{text-decoration:none}
+  .sidebar .brand .lib{color:var(--gold)}
+  nav.side{display:flex;flex-direction:column;gap:2px}
+  nav.side .group{color:var(--gold);font-size:11.5px;font-weight:800;letter-spacing:.09em;
+    text-transform:uppercase;margin:16px 10px 6px}
+  nav.side a{color:var(--muted);padding:7px 10px;border-radius:8px;font-size:14.5px;font-weight:600;
+    border-left:3px solid transparent}
+  nav.side a:hover{color:var(--ink);background:var(--panel);text-decoration:none}
+  nav.side a.active{color:#fff;background:var(--panel);border-left-color:var(--gold)}
+  .content{flex:1 1 auto;min-width:0}
+  main{padding:38px 0 30px}
+  .wrap{max-width:880px;margin:0 auto;padding:0 30px}
+  h1{font-size:34px;line-height:1.2;margin:0 0 8px}
+  h2{font-size:23px;margin:36px 0 12px;padding-top:10px;border-top:1px solid var(--line)}
+  h2::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;
+    background:var(--gold);margin-right:10px;vertical-align:middle}
+  h3{font-size:18px;margin:24px 0 8px}
+  p{margin:12px 0}
+  .lead{font-size:18px;color:var(--muted);margin:6px 0 22px}
+  code{font-family:var(--mono);font-size:.88em;background:var(--panel-2);padding:2px 6px;
+    border-radius:6px;color:var(--accent-2)}
+  pre{background:var(--code-bg);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;overflow:auto;margin:16px 0;line-height:1.55}
+  pre code{background:none;padding:0;color:#d7e2f4;font-size:13.5px}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14.5px}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:var(--panel-2);font-weight:700}
+  tr:nth-child(even) td{background:var(--panel)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;margin:16px 0}
+  .card h3{margin-top:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:18px 0}
+  .note,.warn{border-left:4px solid var(--accent);background:var(--panel);border-radius:8px;
+    padding:12px 16px;margin:16px 0}
+  .warn{border-left-color:var(--gold)}
+  .note b,.warn b{color:var(--ink)}
+  .pill{display:inline-block;background:var(--panel-2);border:1px solid var(--line);color:var(--accent-2);
+    border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;margin-right:6px}
+  ul,ol{margin:12px 0;padding-left:22px}li{margin:5px 0}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}
+  .btn{display:inline-block;background:var(--accent);color:#04122a;font-weight:700;padding:10px 16px;
+    border-radius:9px}
+  .btn:hover{text-decoration:none;filter:brightness(1.08)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn.gold{background:var(--gold);color:#2a2000}
+  .hero{background:radial-gradient(1100px 380px at 10% -20%,rgba(91,157,240,.22),transparent 60%),
+    radial-gradient(760px 320px at 95% -10%,rgba(255,199,44,.14),transparent 55%);
+    border:1px solid var(--line);border-radius:16px;padding:36px 30px;margin-top:4px}
+  .hero h1{font-size:44px}.hero .lead{font-size:20px;max-width:620px}
+  .hero h1 .lib{color:var(--gold)}
+  /* Prev / next pager */
+  .pager{display:flex;gap:14px;margin:40px 0 10px;border-top:1px solid var(--line);padding-top:22px}
+  .pager a{flex:1 1 0;display:flex;flex-direction:column;gap:3px;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+  .pager a:hover{text-decoration:none;border-color:var(--accent);background:var(--panel-2)}
+  .pager .dir{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+  .pager .ttl{font-size:16px;font-weight:700;color:var(--ink)}
+  .pager a.next{text-align:right}
+  footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:13px;padding:20px 0 40px}
+  footer.site .wrap{display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;max-width:880px}
+  @media(max-width:900px){
+    .layout{flex-direction:column}
+    .sidebar{position:static;height:auto;width:auto;flex:none;border-right:none;
+      border-bottom:1px solid var(--line)}
+    nav.side{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px 8px}
+    nav.side .group{grid-column:1/-1}
+    h1{font-size:28px}.hero h1{font-size:32px}.pager{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <a class="brand" href="index.html">CDA<span class="lib">Lib</span></a>
+  <nav class="side">
+    <a href="index.html">Home</a>
+    <div class="group">Setup</div>
+    <a href="overview.html">Overview</a>
+    <a href="installation.html">Installation</a>
+    <div class="group">Getting Started</div>
+    <a href="getting-started.html">Getting Started</a>
+    <div class="group">Reference</div>
+    <a href="modular-opmode.html">ModularOpMode</a>
+    <a href="subsystems.html">Subsystems</a>
+    <a href="devices.html">Devices</a>
+    <a href="controllers.html">Controllers</a>
+    <a href="bindings.html">Bindings</a>
+    <a class="active" href="tasks.html">Tasks</a>
+    <a href="modules.html">Modules</a>
+    <a href="telemetry.html">Telemetry</a>
+    <a href="javadoc/index.html">API (Javadoc)</a>
+  </nav>
+</aside>
+<div class="content">
+<main>
+  <div class="wrap">
+
+    <h1>Task System</h1>
+    <p class="lead">A task is a small, composable unit of robot behavior: it is set up once, then
+    polled every loop until it reports that it is done. Chain and nest tasks with fluent builders to
+    describe an entire autonomous routine — or a single asynchronous action in TeleOp — declaratively.</p>
+
+    <h2>The task model</h2>
+    <p>Every action extends the abstract <code>Task</code> class, which has exactly two lifecycle
+    methods:</p>
+    <ul>
+      <li><code>void init()</code> — called <b>once</b>, before the first <code>run()</code>. Set up
+      state and issue starting commands here (for example, tell a follower to begin a path).</li>
+      <li><code>boolean run()</code> — called <b>every loop</b> after <code>init()</code>. Return
+      <code>true</code> when the task is finished, or <code>false</code> to keep running.</li>
+    </ul>
+
+    <p>A task never blocks. Instead of looping internally, it does a tiny slice of work each
+    <code>run()</code> and returns a "finished yet?" flag, so the OpMode loop stays responsive and can
+    run many things at once.</p>
+
+    <h3>TaskMaster — running one task at a time</h3>
+    <p>A <code>TaskMaster</code> drives a single active task to completion, one loop at a time. It
+    starts idle (holding a <code>NullTask</code>), and you feed it work with
+    <code>addTask(Task)</code>:</p>
+    <ul>
+      <li>If the master is <b>idle</b>, the new task becomes active and is initialized on the next
+      <code>update()</code>.</li>
+      <li>If the master is <b>busy</b>, the new task is appended <b>after</b> the current one — the
+      master wraps them into a <code>SequentialTask</code>, so calls to <code>addTask()</code> queue
+      up in order.</li>
+    </ul>
+    <p>Call <code>update()</code> exactly once per loop. It initializes the active task on the first
+    call, runs one step, and returns to idle once the task finishes. <code>getStatus()</code> reports
+    whether the active task finished on the most recent update, and <code>getTask()</code> returns the
+    currently active task (a <code>NullTask</code> when idle).</p>
+
+    <pre><code>TaskMaster master = new TaskMaster();
+
+// every loop:
+master.addTask(new SleepTask(500));   // queues; runs after whatever is already active
+master.update();                      // advance the active task one step</code></pre>
+
+    <div class="note"><b>Note:</b> <a href="modular-opmode.html">ModularOpMode</a> already owns a
+    <code>TaskMaster</code> and drives it for you — it is initialized in <code>start()</code> and
+    <code>update()</code>d every <code>loop()</code>. In an OpMode you usually just call
+    <code>addTask(...)</code> and let the OpMode handle the rest.</div>
+
+    <h2>Composing tasks</h2>
+    <p>Because <code>run()</code> is just "am I done yet?", tasks nest cleanly. The <code>Task</code>
+    base class exposes four fluent builders, each returning a new composite <code>Task</code>:</p>
+
+    <table>
+      <thead><tr><th>Builder</th><th>Produces</th><th>Behavior</th></tr></thead>
+      <tbody>
+        <tr><td><code>andThen(Task... next)</code></td><td><code>SequentialTask</code></td>
+          <td>Runs this task, then each of the given tasks one after another.</td></tr>
+        <tr><td><code>alongWith(Task... others)</code></td><td><code>ParallelTask</code></td>
+          <td>Runs this task in parallel with the others; finishes when <b>all</b> finish.</td></tr>
+        <tr><td><code>raceWith(Task... others)</code></td><td><code>RaceTask</code></td>
+          <td>Runs this task in parallel with the others; finishes when <b>any one</b> finishes.</td></tr>
+        <tr><td><code>withDeadline(Task deadline)</code></td><td><code>DeadlineTask</code></td>
+          <td>Runs this task until <code>deadline</code> finishes, then stops regardless of state.</td></tr>
+      </tbody>
+    </table>
+
+    <pre><code>Task routine =
+    new InstantTask(() -&gt; arm.raise())
+        .andThen(new SleepTask(300))
+        .alongWith(new BasicTask(intake::start, intake::hasSample))
+        .raceWith(new SleepTask(2000));   // bail out after 2s no matter what
+
+master.addTask(routine);</code></pre>
+
+    <p>The builders take varargs and return a <code>Task</code>, so you can keep chaining. Under the
+    hood <code>andThen(a, b)</code> is simply <code>new SequentialTask(this, a, b)</code> — you can
+    always build the composites directly if you prefer.</p>
+
+    <h2>Task catalog</h2>
+    <p>The "finishes when" column reflects each class's real <code>run()</code> implementation.</p>
+    <table>
+      <thead><tr><th>Task</th><th>Purpose</th><th>Finishes when…</th></tr></thead>
+      <tbody>
+        <tr><td><code>SequentialTask</code></td><td>Run children in order.</td>
+          <td>the last child finishes (immediately if there are no children).</td></tr>
+        <tr><td><code>ParallelTask</code></td><td>Run children at once.</td>
+          <td><b>all</b> children have finished.</td></tr>
+        <tr><td><code>RaceTask</code></td><td>Run children at once.</td>
+          <td><b>any one</b> child finishes (the rest stop being polled).</td></tr>
+        <tr><td><code>DeadlineTask</code></td><td>Run children until a deadline.</td>
+          <td>the <b>deadline</b> child finishes, regardless of the others.</td></tr>
+        <tr><td><code>RepeatTask</code></td><td>Rebuild &amp; rerun a task forever.</td>
+          <td><b>never on its own</b> — <code>run()</code> always returns <code>false</code>; bound it with <code>raceWith</code>/<code>withDeadline</code>.</td></tr>
+        <tr><td><code>DeferredTask</code></td><td>Build the inner task lazily at <code>init()</code>.</td>
+          <td>the inner task (built from a <code>Supplier&lt;Task&gt;</code> at init) finishes.</td></tr>
+        <tr><td><code>InstantTask</code></td><td>Run one action, then finish.</td>
+          <td>immediately — runs a <code>Runnable</code> in <code>init()</code>, <code>run()</code> returns <code>true</code> at once.</td></tr>
+        <tr><td><code>SleepTask</code></td><td>Wait a fixed delay.</td>
+          <td>the given millisecond delay has elapsed since <code>init()</code>.</td></tr>
+        <tr><td><code>WaitUntilTask</code></td><td>Wait for a condition.</td>
+          <td>the supplied <code>BooleanSupplier</code> returns <code>true</code>.</td></tr>
+        <tr><td><code>BasicTask</code></td><td>Build a task from lambdas.</td>
+          <td>the supplied <code>run</code> <code>BooleanSupplier</code> returns <code>true</code> (<code>init</code> runs once first).</td></tr>
+        <tr><td><code>FollowPathTask</code></td><td>Follow a PedroPathing path.</td>
+          <td>the follower is no longer busy (<code>!follower.isBusy()</code>).</td></tr>
+        <tr><td><code>HoldPointTask</code></td><td>Command the follower to hold a pose.</td>
+          <td>immediately, after issuing <code>follower.hold(pose)</code> in <code>init()</code>.</td></tr>
+        <tr><td><code>NullTask</code></td><td>Do nothing (idle placeholder).</td>
+          <td>immediately; this is what <code>TaskMaster</code> holds when idle.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note"><b>Lazy vs. repeating:</b> <code>DeferredTask</code> builds its inner task
+    <b>once</b>, at <code>init()</code> — handy when the task depends on state not known at
+    construction time (for example, an obelisk pattern from AprilTag detection). <code>RepeatTask</code>
+    rebuilds a fresh task from its supplier <b>every time</b> the previous one finishes, and never
+    stops on its own.</div>
+
+    <h2>PedroPathing tasks</h2>
+    <p>Two tasks bridge to a PedroPathing <code>Follower</code>, letting you drop path following
+    straight into a task chain.</p>
+
+    <h3><span class="pill">Pedro 3.0</span> FollowPathTask</h3>
+    <p>Follows a <code>com.pedropathing.paths.Path</code>. In <code>init()</code> it calls
+    <code>follower.follow(path)</code>; in <code>run()</code> it returns <code>true</code> once
+    <code>follower.isBusy()</code> is <code>false</code>. An optional third constructor argument is a
+    <b>speed multiplier</b> (a fraction of the robot's max speed, <code>1.0</code> = full speed):</p>
+    <pre><code>new FollowPathTask(follower, path);          // full speed
+new FollowPathTask(follower, path, 0.6);     // 60% of max speed</code></pre>
+    <p>Pedro 3 dropped the per-follow speed argument of the old <code>followPath()</code> call. A speed
+    cap is now a <b>path modifier</b> — <code>Foresight.config.maxPathSpeed</code>, a fraction of the
+    robot's max speed — so when <code>speed &lt; 1.0</code> and the follower's algorithm is a
+    <code>Foresight</code>, the task applies the cap to a copy of the path via
+    <code>path.with(config.maxPathSpeed.at(speed))</code>. Only <code>Foresight</code> exposes this
+    knob; with other algorithms the path is followed at full speed.</p>
+
+    <h3><span class="pill">Pedro 3.0</span> HoldPointTask</h3>
+    <p>Commands the follower to actively hold a <code>com.pedropathing.math.Pose</code> by calling
+    <code>follower.hold(pose)</code> in <code>init()</code>, then finishes immediately. Chain it after
+    a path to lock the robot in place before the next action begins.</p>
+
+    <h3>An autonomous chain</h3>
+    <pre><code>Path toBasket = /* build a com.pedropathing.paths.Path */;
+Path park     = /* build a com.pedropathing.paths.Path */;
+
+Task auto =
+    new FollowPathTask(follower, toBasket)
+        .andThen(new InstantTask(() -&gt; scorer.deposit()))
+        .andThen(new SleepTask(400))
+        .andThen(new FollowPathTask(follower, park, 0.75))
+        .andThen(new HoldPointTask(follower, park.endPose()));
+
+master.addTask(auto);</code></pre>
+
+    <div class="warn"><b>Pedro 3.0 API.</b> <code>Path</code> and <code>Pose</code> come from
+    <code>com.pedropathing.paths.Path</code> / <code>com.pedropathing.math.Pose</code>, and the
+    follower is driven with <code>follow()</code> / <code>hold()</code> / <code>isBusy()</code>. This
+    is a breaking change from older PedroPathing versions — the pre-3.0
+    <code>followPath(path, speed, holdEnd)</code> signature and legacy pose types no longer apply.</div>
+
+<nav class="pager">
+  <a class="prev" href="bindings.html"><span class="dir">&larr; Previous</span><span class="ttl">Bindings</span></a>
+  <a class="next" href="modules.html"><span class="dir">Next &rarr;</span><span class="ttl">Modules</span></a>
+</nav>
+  </div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <span>CDALib 0.2.0 &middot; CDAFM Robotics</span>
+    <span>Built on PedroPathing 3.0 &amp; PhotonFTC &middot; MIT License</span>
+  </div>
+</footer>
+</div>
+</div>
+</body>
+</html>

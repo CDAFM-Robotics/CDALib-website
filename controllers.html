@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controllers — CDALib</title>
+<style>
+  :root{
+    --bg:#0a1c3a; --sidebar:#071429; --panel:#0f2549; --panel-2:#143562; --ink:#eaf1fb;
+    --muted:#9fb4d4; --line:#21406e; --accent:#5b9df0; --accent-2:#8fc0ff; --gold:#ffc72c;
+    --code-bg:#061225; --radius:12px;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65;
+    font-size:16px;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .layout{display:flex;min-height:100vh;align-items:stretch}
+  /* Sidebar: sticky, full height, scrolls on its own so items never get cut off */
+  .sidebar{flex:0 0 258px;width:258px;background:var(--sidebar);border-right:1px solid var(--line);
+    position:sticky;top:0;height:100vh;overflow-y:auto;padding:20px 14px 30px}
+  .sidebar .brand{display:block;font-weight:800;letter-spacing:.3px;font-size:21px;color:var(--ink);
+    padding:6px 10px 14px;border-bottom:1px solid var(--line);margin-bottom:10px}
+  .sidebar .brand:hover{text-decoration:none}
+  .sidebar .brand .lib{color:var(--gold)}
+  nav.side{display:flex;flex-direction:column;gap:2px}
+  nav.side .group{color:var(--gold);font-size:11.5px;font-weight:800;letter-spacing:.09em;
+    text-transform:uppercase;margin:16px 10px 6px}
+  nav.side a{color:var(--muted);padding:7px 10px;border-radius:8px;font-size:14.5px;font-weight:600;
+    border-left:3px solid transparent}
+  nav.side a:hover{color:var(--ink);background:var(--panel);text-decoration:none}
+  nav.side a.active{color:#fff;background:var(--panel);border-left-color:var(--gold)}
+  .content{flex:1 1 auto;min-width:0}
+  main{padding:38px 0 30px}
+  .wrap{max-width:880px;margin:0 auto;padding:0 30px}
+  h1{font-size:34px;line-height:1.2;margin:0 0 8px}
+  h2{font-size:23px;margin:36px 0 12px;padding-top:10px;border-top:1px solid var(--line)}
+  h2::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;
+    background:var(--gold);margin-right:10px;vertical-align:middle}
+  h3{font-size:18px;margin:24px 0 8px}
+  p{margin:12px 0}
+  .lead{font-size:18px;color:var(--muted);margin:6px 0 22px}
+  code{font-family:var(--mono);font-size:.88em;background:var(--panel-2);padding:2px 6px;
+    border-radius:6px;color:var(--accent-2)}
+  pre{background:var(--code-bg);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;overflow:auto;margin:16px 0;line-height:1.55}
+  pre code{background:none;padding:0;color:#d7e2f4;font-size:13.5px}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14.5px}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:var(--panel-2);font-weight:700}
+  tr:nth-child(even) td{background:var(--panel)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;margin:16px 0}
+  .card h3{margin-top:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:18px 0}
+  .note,.warn{border-left:4px solid var(--accent);background:var(--panel);border-radius:8px;
+    padding:12px 16px;margin:16px 0}
+  .warn{border-left-color:var(--gold)}
+  .note b,.warn b{color:var(--ink)}
+  .pill{display:inline-block;background:var(--panel-2);border:1px solid var(--line);color:var(--accent-2);
+    border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;margin-right:6px}
+  ul,ol{margin:12px 0;padding-left:22px}li{margin:5px 0}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}
+  .btn{display:inline-block;background:var(--accent);color:#04122a;font-weight:700;padding:10px 16px;
+    border-radius:9px}
+  .btn:hover{text-decoration:none;filter:brightness(1.08)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn.gold{background:var(--gold);color:#2a2000}
+  .hero{background:radial-gradient(1100px 380px at 10% -20%,rgba(91,157,240,.22),transparent 60%),
+    radial-gradient(760px 320px at 95% -10%,rgba(255,199,44,.14),transparent 55%);
+    border:1px solid var(--line);border-radius:16px;padding:36px 30px;margin-top:4px}
+  .hero h1{font-size:44px}.hero .lead{font-size:20px;max-width:620px}
+  .hero h1 .lib{color:var(--gold)}
+  /* Prev / next pager */
+  .pager{display:flex;gap:14px;margin:40px 0 10px;border-top:1px solid var(--line);padding-top:22px}
+  .pager a{flex:1 1 0;display:flex;flex-direction:column;gap:3px;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+  .pager a:hover{text-decoration:none;border-color:var(--accent);background:var(--panel-2)}
+  .pager .dir{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+  .pager .ttl{font-size:16px;font-weight:700;color:var(--ink)}
+  .pager a.next{text-align:right}
+  footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:13px;padding:20px 0 40px}
+  footer.site .wrap{display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;max-width:880px}
+  @media(max-width:900px){
+    .layout{flex-direction:column}
+    .sidebar{position:static;height:auto;width:auto;flex:none;border-right:none;
+      border-bottom:1px solid var(--line)}
+    nav.side{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px 8px}
+    nav.side .group{grid-column:1/-1}
+    h1{font-size:28px}.hero h1{font-size:32px}.pager{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <a class="brand" href="index.html">CDA<span class="lib">Lib</span></a>
+  <nav class="side">
+    <a href="index.html">Home</a>
+    <div class="group">Setup</div>
+    <a href="overview.html">Overview</a>
+    <a href="installation.html">Installation</a>
+    <div class="group">Getting Started</div>
+    <a href="getting-started.html">Getting Started</a>
+    <div class="group">Reference</div>
+    <a href="modular-opmode.html">ModularOpMode</a>
+    <a href="subsystems.html">Subsystems</a>
+    <a href="devices.html">Devices</a>
+    <a class="active" href="controllers.html">Controllers</a>
+    <a href="bindings.html">Bindings</a>
+    <a href="tasks.html">Tasks</a>
+    <a href="modules.html">Modules</a>
+    <a href="telemetry.html">Telemetry</a>
+    <a href="javadoc/index.html">API (Javadoc)</a>
+  </nav>
+</aside>
+<div class="content">
+<main>
+  <div class="wrap">
+
+    <h1>Controllers</h1>
+    <p class="lead">Closed-loop and feedforward math that drives a measured value toward a target.
+    Every controller shares one small interface, so subsystems can swap PID, feedforward, or a
+    combination without changing their update loop.</p>
+
+    <p>A <code>Controller</code> is an abstract closed-loop controller. It holds a single
+    <b>target</b> (setpoint) and exposes an <code>update(current, dt)</code> method that is called
+    once per loop with the latest measurement and returns the control output to apply to a motor,
+    servo, or other actuator. The controllers package lives in
+    <code>com.cdarobotics.cdalib.controllers</code>.</p>
+
+    <div class="grid">
+      <div class="card"><span class="pill">abstract</span><b>Controller</b><br>The base type: a target plus <code>update(current, dt)</code>.</div>
+      <div class="card"><span class="pill">feedback</span><b>PIDController</b><br>Proportional + integral + derivative on error.</div>
+      <div class="card"><span class="pill">feedforward</span><b>FFController</b><br>Static + linear + cosine term from the measurement.</div>
+      <div class="card"><span class="pill">composite</span><b>CompoundController</b><br>Sums the outputs of several sub-controllers.</div>
+      <div class="card"><span class="pill">no-op</span><b>NullController</b><br>Always returns <code>0</code>.</div>
+    </div>
+
+    <h2>The Controller base type</h2>
+    <p>All controllers extend <code>Controller</code>, an abstract class with one field and three
+    members you interact with:</p>
+
+    <table>
+      <tr><th>Member</th><th>Signature</th><th>Description</th></tr>
+      <tr><td>constructor</td><td><code>Controller(double target)</code></td><td>Stores the initial setpoint.</td></tr>
+      <tr><td><code>update</code></td><td><code>abstract double update(double current, double dt)</code></td><td>Computes the control output for this loop from the current measured value and the elapsed time (in seconds) since the previous update. Returns the output to apply.</td></tr>
+      <tr><td><code>getTarget</code></td><td><code>double getTarget()</code></td><td>Returns the current setpoint.</td></tr>
+      <tr><td><code>setTarget</code></td><td><code>void setTarget(double target)</code></td><td>Changes the setpoint. Takes effect on the next <code>update()</code>.</td></tr>
+    </table>
+
+    <div class="note"><b>dt is in seconds.</b> The <code>dt</code> argument is the loop time delta,
+    used by the integral and derivative terms. Pass the actual measured time between loops (a fixed
+    nominal value works too, but real loop time gives more stable behavior).</div>
+
+    <h2>PIDController</h2>
+    <p>A proportional-integral-derivative feedback controller. Each loop it computes the error
+    <code>target - current</code> and returns the sum of three terms:</p>
+    <ul>
+      <li><b>Proportional</b> — <code>error * kP</code>.</li>
+      <li><b>Integral</b> — the running integral of error times <code>kI</code>. The integral is
+      accumulated using <b>trapezoidal integration</b>: each loop it adds
+      <code>(previousError + error) / 2 * dt</code>. This is a plain accumulator with no
+      anti-windup clamping, so hold the target reasonably close to where the mechanism can reach it.</li>
+      <li><b>Derivative</b> — the rate of change of error, <code>(error - previousError) / dt</code>,
+      times <code>kD</code>.</li>
+    </ul>
+    <p>As implemented, the full output is:</p>
+    <pre><code>error * kP + integral * kI + derivative * kD</code></pre>
+
+    <table>
+      <tr><th>Constructor</th><th>Parameters</th></tr>
+      <tr><td><code>PIDController(double target, double kP, double kI, double kD)</code></td>
+        <td><code>target</code> initial setpoint · <code>kP</code> proportional gain ·
+        <code>kI</code> integral gain · <code>kD</code> derivative gain</td></tr>
+    </table>
+    <div class="warn"><b>Note on initialization.</b> The controller seeds
+    <code>previousError = target</code> at construction. The very first <code>update()</code> after
+    construction therefore computes its derivative against that seed; this is normally harmless but
+    worth knowing if your first loop matters.</div>
+
+    <h2>FFController</h2>
+    <p>A feedforward controller. Its output is computed purely from the current measurement (it does
+    not use the target or accumulate any state). The exact formula as implemented is:</p>
+    <pre><code>kS + kF * current + Math.cos(kCos * current)</code></pre>
+    <p>This combines a static term, a term proportional to the measurement, and a cosine term — for
+    example to compensate for gravity on a rotating arm, where the holding torque varies with the
+    cosine of the arm angle.</p>
+    <table>
+      <tr><th>Constructor</th><th>Parameters</th></tr>
+      <tr><td><code>FFController(double target, double kS, double kF, double kCos)</code></td>
+        <td><code>target</code> initial setpoint (stored but unused by the formula) ·
+        <code>kS</code> static term · <code>kF</code> gain applied to the measurement ·
+        <code>kCos</code> scale applied to the measurement inside the cosine</td></tr>
+    </table>
+    <div class="note"><b>The cosine term is unscaled.</b> The formula adds
+    <code>Math.cos(kCos * current)</code> directly (there is no separate gain multiplying the cosine
+    output), so its magnitude is always in the range <code>[-1, 1]</code>. Tune <code>kCos</code> so
+    that the units of <code>current</code> map to radians as you intend.</div>
+
+    <h2>CompoundController</h2>
+    <p>Combines several sub-controllers, summing their outputs each loop. The classic use is adding a
+    feedforward term to a PID feedback term.</p>
+    <pre><code>CompoundController(double target, Controller... controllers)</code></pre>
+    <p>On each <code>update(current, dt)</code> it calls <code>update(current, dt)</code> on every
+    sub-controller and returns the sum. The same <code>current</code> and <code>dt</code> are passed
+    to all of them.</p>
+    <div class="warn"><b>The target does not propagate.</b> Each sub-controller keeps its own target.
+    Calling <code>setTarget(...)</code> on the <code>CompoundController</code> only changes the
+    compound controller's own stored target — it does <b>not</b> update the sub-controllers. If you
+    need to re-target, hold references to the sub-controllers and set their targets directly.</div>
+
+    <h2>NullController</h2>
+    <p>A no-op controller whose <code>update(current, dt)</code> always returns <code>0</code>. Its
+    <code>target</code> is stored but unused. Handy as a placeholder while wiring up a subsystem, or
+    as a disabled slot inside a <code>CompoundController</code>.</p>
+    <pre><code>NullController(double target)</code></pre>
+
+    <h2>Usage</h2>
+    <p>A subsystem typically owns a controller, feeds it the encoder reading each loop, and applies
+    the returned output to its motor. This mirrors how
+    <a href="subsystems.html">PositionMotorSubsystem</a> uses a <code>Controller</code> internally.</p>
+    <pre><code>// A PID that drives an arm toward a target tick count.
+PIDController arm = new PIDController(0, 0.005, 0.0, 0.0002);
+
+// In the subsystem update loop:
+double current = motor.getCurrentPosition();   // encoder ticks
+double dt = timer.seconds();                   // seconds since last loop
+timer.reset();
+
+double output = arm.update(current, dt);
+motor.setPower(output);</code></pre>
+
+    <p>Adding gravity compensation with a feedforward term:</p>
+    <pre><code>PIDController fb = new PIDController(target, 0.005, 0.0, 0.0002);
+FFController  ff = new FFController(target, 0.05, 0.0, 0.01);
+
+CompoundController controller = new CompoundController(target, fb, ff);
+
+// Re-target: set BOTH sub-controllers, not just the compound.
+fb.setTarget(newTarget);
+ff.setTarget(newTarget);
+
+double output = controller.update(current, dt);   // fb.update + ff.update</code></pre>
+
+<nav class="pager">
+  <a class="prev" href="devices.html"><span class="dir">&larr; Previous</span><span class="ttl">Devices</span></a>
+  <a class="next" href="bindings.html"><span class="dir">Next &rarr;</span><span class="ttl">Bindings</span></a>
+</nav>
+  </div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <span>CDALib 0.2.0 &middot; CDAFM Robotics</span>
+    <span>Built on PedroPathing 3.0 &amp; PhotonFTC &middot; MIT License</span>
+  </div>
+</footer>
+</div>
+</div>
+</body>
+</html>

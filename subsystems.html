@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subsystems — CDALib</title>
+<style>
+  :root{
+    --bg:#0a1c3a; --sidebar:#071429; --panel:#0f2549; --panel-2:#143562; --ink:#eaf1fb;
+    --muted:#9fb4d4; --line:#21406e; --accent:#5b9df0; --accent-2:#8fc0ff; --gold:#ffc72c;
+    --code-bg:#061225; --radius:12px;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65;
+    font-size:16px;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .layout{display:flex;min-height:100vh;align-items:stretch}
+  /* Sidebar: sticky, full height, scrolls on its own so items never get cut off */
+  .sidebar{flex:0 0 258px;width:258px;background:var(--sidebar);border-right:1px solid var(--line);
+    position:sticky;top:0;height:100vh;overflow-y:auto;padding:20px 14px 30px}
+  .sidebar .brand{display:block;font-weight:800;letter-spacing:.3px;font-size:21px;color:var(--ink);
+    padding:6px 10px 14px;border-bottom:1px solid var(--line);margin-bottom:10px}
+  .sidebar .brand:hover{text-decoration:none}
+  .sidebar .brand .lib{color:var(--gold)}
+  nav.side{display:flex;flex-direction:column;gap:2px}
+  nav.side .group{color:var(--gold);font-size:11.5px;font-weight:800;letter-spacing:.09em;
+    text-transform:uppercase;margin:16px 10px 6px}
+  nav.side a{color:var(--muted);padding:7px 10px;border-radius:8px;font-size:14.5px;font-weight:600;
+    border-left:3px solid transparent}
+  nav.side a:hover{color:var(--ink);background:var(--panel);text-decoration:none}
+  nav.side a.active{color:#fff;background:var(--panel);border-left-color:var(--gold)}
+  .content{flex:1 1 auto;min-width:0}
+  main{padding:38px 0 30px}
+  .wrap{max-width:880px;margin:0 auto;padding:0 30px}
+  h1{font-size:34px;line-height:1.2;margin:0 0 8px}
+  h2{font-size:23px;margin:36px 0 12px;padding-top:10px;border-top:1px solid var(--line)}
+  h2::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;
+    background:var(--gold);margin-right:10px;vertical-align:middle}
+  h3{font-size:18px;margin:24px 0 8px}
+  p{margin:12px 0}
+  .lead{font-size:18px;color:var(--muted);margin:6px 0 22px}
+  code{font-family:var(--mono);font-size:.88em;background:var(--panel-2);padding:2px 6px;
+    border-radius:6px;color:var(--accent-2)}
+  pre{background:var(--code-bg);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;overflow:auto;margin:16px 0;line-height:1.55}
+  pre code{background:none;padding:0;color:#d7e2f4;font-size:13.5px}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14.5px}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:var(--panel-2);font-weight:700}
+  tr:nth-child(even) td{background:var(--panel)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;margin:16px 0}
+  .card h3{margin-top:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:18px 0}
+  .note,.warn{border-left:4px solid var(--accent);background:var(--panel);border-radius:8px;
+    padding:12px 16px;margin:16px 0}
+  .warn{border-left-color:var(--gold)}
+  .note b,.warn b{color:var(--ink)}
+  .pill{display:inline-block;background:var(--panel-2);border:1px solid var(--line);color:var(--accent-2);
+    border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;margin-right:6px}
+  ul,ol{margin:12px 0;padding-left:22px}li{margin:5px 0}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}
+  .btn{display:inline-block;background:var(--accent);color:#04122a;font-weight:700;padding:10px 16px;
+    border-radius:9px}
+  .btn:hover{text-decoration:none;filter:brightness(1.08)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn.gold{background:var(--gold);color:#2a2000}
+  .hero{background:radial-gradient(1100px 380px at 10% -20%,rgba(91,157,240,.22),transparent 60%),
+    radial-gradient(760px 320px at 95% -10%,rgba(255,199,44,.14),transparent 55%);
+    border:1px solid var(--line);border-radius:16px;padding:36px 30px;margin-top:4px}
+  .hero h1{font-size:44px}.hero .lead{font-size:20px;max-width:620px}
+  .hero h1 .lib{color:var(--gold)}
+  /* Prev / next pager */
+  .pager{display:flex;gap:14px;margin:40px 0 10px;border-top:1px solid var(--line);padding-top:22px}
+  .pager a{flex:1 1 0;display:flex;flex-direction:column;gap:3px;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+  .pager a:hover{text-decoration:none;border-color:var(--accent);background:var(--panel-2)}
+  .pager .dir{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+  .pager .ttl{font-size:16px;font-weight:700;color:var(--ink)}
+  .pager a.next{text-align:right}
+  footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:13px;padding:20px 0 40px}
+  footer.site .wrap{display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;max-width:880px}
+  @media(max-width:900px){
+    .layout{flex-direction:column}
+    .sidebar{position:static;height:auto;width:auto;flex:none;border-right:none;
+      border-bottom:1px solid var(--line)}
+    nav.side{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px 8px}
+    nav.side .group{grid-column:1/-1}
+    h1{font-size:28px}.hero h1{font-size:32px}.pager{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <a class="brand" href="index.html">CDA<span class="lib">Lib</span></a>
+  <nav class="side">
+    <a href="index.html">Home</a>
+    <div class="group">Setup</div>
+    <a href="overview.html">Overview</a>
+    <a href="installation.html">Installation</a>
+    <div class="group">Getting Started</div>
+    <a href="getting-started.html">Getting Started</a>
+    <div class="group">Reference</div>
+    <a href="modular-opmode.html">ModularOpMode</a>
+    <a class="active" href="subsystems.html">Subsystems</a>
+    <a href="devices.html">Devices</a>
+    <a href="controllers.html">Controllers</a>
+    <a href="bindings.html">Bindings</a>
+    <a href="tasks.html">Tasks</a>
+    <a href="modules.html">Modules</a>
+    <a href="telemetry.html">Telemetry</a>
+    <a href="javadoc/index.html">API (Javadoc)</a>
+  </nav>
+</aside>
+<div class="content">
+<main>
+  <div class="wrap">
+
+
+    <h1>Subsystems</h1>
+    <p class="lead">A <code>Subsystem</code> is one robot mechanism — a drivetrain, an arm, a
+    lift — with a fixed lifecycle. You register subsystems in your
+    <a href="modular-opmode.html">ModularOpMode</a>'s <code>preload()</code>, and the OpMode drives
+    each one through init, start, loop, and stop for you.</p>
+
+    <p><code>Subsystem</code> is an abstract class with five lifecycle methods. Extend it, implement
+    the methods for your mechanism, and register it — you never call these methods yourself.</p>
+
+    <table>
+      <thead><tr><th>Method</th><th>Called</th><th>Use it for</th></tr></thead>
+      <tbody>
+        <tr><td><code>void init()</code></td><td>Once, on OpMode init.</td>
+          <td>Grab hardware and set starting state.</td></tr>
+        <tr><td><code>void init_loop()</code></td><td>Repeatedly during init, after <code>init()</code>
+          and before <code>start()</code>.</td>
+          <td>Work that must keep running until play is pressed — reporting sensor readings, waiting on
+          hardware.</td></tr>
+        <tr><td><code>void start()</code></td><td>Once, when play is pressed.</td>
+          <td>Latch a start time, kick off threads, arm the mechanism.</td></tr>
+        <tr><td><code>void update()</code></td><td>Every loop.</td>
+          <td>Read inputs and drive the mechanism. This is the hot path.</td></tr>
+        <tr><td><code>void stop()</code></td><td>Once, when the OpMode ends.</td>
+          <td>Safe or release the mechanism.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="warn"><b>Every concrete subsystem must implement <code>init_loop()</code>.</b> It is an
+    <em>abstract</em> method on <code>Subsystem</code>, so the compiler forces you to provide it in
+    every subclass — even when you have nothing to do during init. In that case just leave the body
+    empty. Forgetting this is the most common reason a new subsystem won't compile.</div>
+
+    <pre><code>@Override
+public void init_loop() {
+    // Nothing to do during init for this subsystem — but the method is required.
+}</code></pre>
+
+    <h2>Provided subsystem types</h2>
+    <p>CDALib ships several subsystem base classes and ready-made subsystems. Reach for the one that
+    matches your mechanism.</p>
+
+    <div class="grid">
+      <div class="card">
+        <span class="pill">abstract</span>
+        <h3>Subsystem</h3>
+        <p>The base class every subsystem extends. Defines the five lifecycle methods above. Use it
+        directly when your mechanism doesn't fit one of the more specialized bases.</p>
+      </div>
+      <div class="card">
+        <span class="pill">abstract</span>
+        <h3>DeviceSubsystem</h3>
+        <p>A subsystem backed by a single <a href="devices.html">Device</a>. Its constructor takes the
+        device, and its <code>update()</code> already calls <code>device.update()</code> for you every
+        loop. You implement <code>init()</code>/<code>init_loop()</code>/<code>start()</code>/<code>stop()</code>
+        and expose your own control methods on top of the device.</p>
+      </div>
+      <div class="card">
+        <span class="pill">abstract</span>
+        <h3>CompoundSubsystem</h3>
+        <p>Groups several child subsystems and fans each lifecycle call out to all of them. Add
+        children with <code>registerSubsystem(Subsystem)</code>. Great for a mechanism assembled from
+        smaller ones — e.g. an intake made of a roller subsystem and a wrist subsystem.</p>
+      </div>
+      <div class="card">
+        <span class="pill">concrete</span>
+        <h3>PositionMotorSubsystem</h3>
+        <p>Drives a single motor toward a target position using a
+        <a href="controllers.html">Controller</a>. Set the target and let it hold there every loop.</p>
+      </div>
+      <div class="card">
+        <span class="pill">concrete</span>
+        <h3>ThreadedIMU</h3>
+        <p>Reads the IMU on a background thread so the main loop never blocks on I2C. Getters return a
+        cached snapshot in constant time.</p>
+      </div>
+      <div class="card">
+        <span class="pill">concrete</span>
+        <h3>NullSubsystem</h3>
+        <p>A subsystem whose lifecycle methods all do nothing. A no-op placeholder or default where a
+        subsystem is required but no behavior is wanted.</p>
+      </div>
+    </div>
+
+    <h3>DeviceSubsystem</h3>
+    <p>The constructor is <code>protected DeviceSubsystem(Device device)</code>. The wrapped device is
+    held in a <code>protected final Device device</code> field and refreshed automatically each loop.
+    This is the base you'll use most: wrap one motor, servo, or sensor and expose intent-level methods.</p>
+
+    <h3>CompoundSubsystem</h3>
+    <p>Extend it and add children in your constructor. <code>init()</code>, <code>start()</code>,
+    <code>update()</code>, and <code>stop()</code> are already implemented to loop over every child.</p>
+    <pre><code>public class Intake extends CompoundSubsystem {
+    public Intake(HardwareMap hardwareMap) {
+        registerSubsystem(new Roller(hardwareMap));
+        registerSubsystem(new Wrist(hardwareMap));
+    }
+
+    @Override
+    public void init_loop() {
+        // required; delegate to children yourself if needed
+    }
+}</code></pre>
+
+    <h3>PositionMotorSubsystem</h3>
+    <p>Resolves a motor from the hardware map and drives it toward a target position with a
+    <a href="controllers.html">Controller</a>. Each <code>update()</code> feeds the motor's current
+    encoder position and the elapsed time to the controller and applies the resulting power.</p>
+    <table>
+      <thead><tr><th>Member</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>PositionMotorSubsystem(HardwareMap, String motorName)</code></td>
+          <td>Resolves the motor by name; starts with a <code>NullController</code> (no motion) until
+          you set a real one.</td></tr>
+        <tr><td><code>PositionMotorSubsystem(HardwareMap, String motorName, Controller controller)</code></td>
+          <td>Resolves the motor and drives it with the given controller.</td></tr>
+        <tr><td><code>void setController(Controller controller)</code></td>
+          <td>Replaces the controller used to drive the motor toward its target.</td></tr>
+        <tr><td><code>void setDirection(DcMotorSimple.Direction direction)</code></td>
+          <td>Sets the motor's rotation direction.</td></tr>
+        <tr><td><code>void setPosition(double position)</code></td>
+          <td>Sets the target position the controller drives the motor toward (calls
+          <code>controller.setTarget(position)</code>).</td></tr>
+      </tbody>
+    </table>
+    <pre><code>PositionMotorSubsystem lift =
+        new PositionMotorSubsystem(hardwareMap, "lift", new PIDController(0.01, 0, 0.001));
+lift.setDirection(DcMotorSimple.Direction.REVERSE);
+registerSubsystem(lift);
+
+// later, from a binding or module:
+lift.setPosition(1200);   // drive toward 1200 encoder ticks and hold</code></pre>
+
+    <h3>ThreadedIMU</h3>
+    <p>The universal <code>IMU</code> is an I2C device, and I2C is <em>not</em> covered by Lynx bulk
+    caching — a normal <code>getRobotYawPitchRollAngles()</code> in the loop costs a full blocking
+    transaction (several milliseconds) every cycle. <code>ThreadedIMU</code> instead spins a daemon
+    reader thread (~200&nbsp;Hz by default) that continuously polls the IMU into a cached snapshot; the
+    getters return that snapshot in constant time, removing IMU latency from every loop.</p>
+    <div class="warn"><b>The IMU must already be initialized</b> (via <code>imu.initialize(...)</code>
+    with your hub orientation) before you register a <code>ThreadedIMU</code> — like
+    <a href="devices.html">IMUDevice</a>, it does not initialize the IMU itself.</div>
+    <table>
+      <thead><tr><th>Member</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>ThreadedIMU(IMU imu)</code> / <code>ThreadedIMU(IMU imu, long pollIntervalMs)</code></td>
+          <td>Wraps an already-initialized IMU, at the default (<code>DEFAULT_POLL_INTERVAL_MS</code> =
+          10&nbsp;ms) or a custom poll interval.</td></tr>
+        <tr><td><code>ThreadedIMU(HardwareMap, String name)</code> / <code>(HardwareMap, String, long)</code></td>
+          <td>Resolves the IMU from the hardware map by configured name (still must be initialized
+          separately).</td></tr>
+        <tr><td><code>double getYaw(AngleUnit)</code>, <code>getPitch(AngleUnit)</code>,
+          <code>getRoll(AngleUnit)</code></td>
+          <td>Most recent reading in the requested unit; returns <code>0</code> before the first read.</td></tr>
+        <tr><td><code>void resetYaw()</code></td>
+          <td>Resets yaw so the current heading reads zero. Safe to call from the loop thread — it is
+          serialized against the reader thread.</td></tr>
+        <tr><td><code>IMU getImu()</code></td>
+          <td>The wrapped SDK IMU. Prefer the getters and <code>resetYaw()</code>; direct calls race
+          with the reader thread.</td></tr>
+      </tbody>
+    </table>
+    <pre><code>IMU imu = hardwareMap.get(IMU.class, "imu");
+imu.initialize(new IMU.Parameters(/* your hub orientation */));
+
+ThreadedIMU heading = new ThreadedIMU(imu);
+registerSubsystem(heading);   // ModularOpMode starts the reader on start(), stops it on end
+
+// in a module/binding:
+double yaw = heading.getYaw(AngleUnit.DEGREES);</code></pre>
+
+    <h3>NullSubsystem</h3>
+    <p>All five lifecycle methods are empty. Register it where the code expects a subsystem but you
+    want no behavior — a clean default that keeps a slot non-null.</p>
+
+    <h2>Writing your own subsystem</h2>
+    <p>Extend <code>Subsystem</code> and implement all five lifecycle methods. This lift wraps a
+    <a href="devices.html">MotorDevice</a> — set the power you want in your control methods and let
+    <code>update()</code> flush it once per loop (a bulk-cache-friendly write). Note the required
+    <code>init_loop()</code>, empty here.</p>
+
+    <pre><code>package org.firstinspires.ftc.teamcode.subsystems;
+
+import com.cdarobotics.cdalib.subsystems.Subsystem;
+import com.cdarobotics.cdalib.devices.actuators.MotorDevice;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+public class Lift extends Subsystem {
+
+    private final MotorDevice motor;
+    private double power = 0.0;
+
+    public Lift(HardwareMap hardwareMap) {
+        motor = new MotorDevice(hardwareMap, "lift");
+    }
+
+    // Control method your modules/bindings call.
+    public void setPower(double power) {
+        this.power = power;
+    }
+
+    @Override
+    public void init() {
+        motor.setDirection(DcMotorSimple.Direction.REVERSE)
+             .setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    @Override
+    public void init_loop() {
+        // Required by Subsystem. Nothing to do during init here.
+    }
+
+    @Override
+    public void start() {
+        power = 0.0;
+    }
+
+    @Override
+    public void update() {
+        // Cache the commanded power; MotorDevice.update() flushes it (write-cached).
+        motor.setPower(power).update();
+    }
+
+    @Override
+    public void stop() {
+        motor.setPower(0.0).update();
+    }
+}</code></pre>
+
+    <p>Register it in your OpMode:</p>
+    <pre><code>@Override
+protected void preload() {
+    registerSubsystem(new Lift(hardwareMap));
+}</code></pre>
+
+    <div class="note"><b>Tip.</b> If your subsystem wraps exactly one device, extend
+    <a href="devices.html">DeviceSubsystem</a> instead — its <code>update()</code> already refreshes
+    the device, so you only write the intent-level methods.</div>
+
+<nav class="pager">
+  <a class="prev" href="modular-opmode.html"><span class="dir">&larr; Previous</span><span class="ttl">ModularOpMode</span></a>
+  <a class="next" href="devices.html"><span class="dir">Next &rarr;</span><span class="ttl">Devices</span></a>
+</nav>
+  </div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <span>CDALib 0.2.0 &middot; CDAFM Robotics</span>
+    <span>Built on PedroPathing 3.0 &amp; PhotonFTC &middot; MIT License</span>
+  </div>
+</footer>
+</div>
+</div>
+</body>
+</html>

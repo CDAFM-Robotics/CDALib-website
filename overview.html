@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Overview — CDALib</title>
+<style>
+  :root{
+    --bg:#0a1c3a; --sidebar:#071429; --panel:#0f2549; --panel-2:#143562; --ink:#eaf1fb;
+    --muted:#9fb4d4; --line:#21406e; --accent:#5b9df0; --accent-2:#8fc0ff; --gold:#ffc72c;
+    --code-bg:#061225; --radius:12px;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65;
+    font-size:16px;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .layout{display:flex;min-height:100vh;align-items:stretch}
+  /* Sidebar: sticky, full height, scrolls on its own so items never get cut off */
+  .sidebar{flex:0 0 258px;width:258px;background:var(--sidebar);border-right:1px solid var(--line);
+    position:sticky;top:0;height:100vh;overflow-y:auto;padding:20px 14px 30px}
+  .sidebar .brand{display:block;font-weight:800;letter-spacing:.3px;font-size:21px;color:var(--ink);
+    padding:6px 10px 14px;border-bottom:1px solid var(--line);margin-bottom:10px}
+  .sidebar .brand:hover{text-decoration:none}
+  .sidebar .brand .lib{color:var(--gold)}
+  nav.side{display:flex;flex-direction:column;gap:2px}
+  nav.side .group{color:var(--gold);font-size:11.5px;font-weight:800;letter-spacing:.09em;
+    text-transform:uppercase;margin:16px 10px 6px}
+  nav.side a{color:var(--muted);padding:7px 10px;border-radius:8px;font-size:14.5px;font-weight:600;
+    border-left:3px solid transparent}
+  nav.side a:hover{color:var(--ink);background:var(--panel);text-decoration:none}
+  nav.side a.active{color:#fff;background:var(--panel);border-left-color:var(--gold)}
+  .content{flex:1 1 auto;min-width:0}
+  main{padding:38px 0 30px}
+  .wrap{max-width:880px;margin:0 auto;padding:0 30px}
+  h1{font-size:34px;line-height:1.2;margin:0 0 8px}
+  h2{font-size:23px;margin:36px 0 12px;padding-top:10px;border-top:1px solid var(--line)}
+  h2::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;
+    background:var(--gold);margin-right:10px;vertical-align:middle}
+  h3{font-size:18px;margin:24px 0 8px}
+  p{margin:12px 0}
+  .lead{font-size:18px;color:var(--muted);margin:6px 0 22px}
+  code{font-family:var(--mono);font-size:.88em;background:var(--panel-2);padding:2px 6px;
+    border-radius:6px;color:var(--accent-2)}
+  pre{background:var(--code-bg);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;overflow:auto;margin:16px 0;line-height:1.55}
+  pre code{background:none;padding:0;color:#d7e2f4;font-size:13.5px}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14.5px}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:var(--panel-2);font-weight:700}
+  tr:nth-child(even) td{background:var(--panel)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;margin:16px 0}
+  .card h3{margin-top:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:18px 0}
+  .note,.warn{border-left:4px solid var(--accent);background:var(--panel);border-radius:8px;
+    padding:12px 16px;margin:16px 0}
+  .warn{border-left-color:var(--gold)}
+  .note b,.warn b{color:var(--ink)}
+  .pill{display:inline-block;background:var(--panel-2);border:1px solid var(--line);color:var(--accent-2);
+    border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;margin-right:6px}
+  ul,ol{margin:12px 0;padding-left:22px}li{margin:5px 0}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}
+  .btn{display:inline-block;background:var(--accent);color:#04122a;font-weight:700;padding:10px 16px;
+    border-radius:9px}
+  .btn:hover{text-decoration:none;filter:brightness(1.08)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn.gold{background:var(--gold);color:#2a2000}
+  .hero{background:radial-gradient(1100px 380px at 10% -20%,rgba(91,157,240,.22),transparent 60%),
+    radial-gradient(760px 320px at 95% -10%,rgba(255,199,44,.14),transparent 55%);
+    border:1px solid var(--line);border-radius:16px;padding:36px 30px;margin-top:4px}
+  .hero h1{font-size:44px}.hero .lead{font-size:20px;max-width:620px}
+  .hero h1 .lib{color:var(--gold)}
+  /* Prev / next pager */
+  .pager{display:flex;gap:14px;margin:40px 0 10px;border-top:1px solid var(--line);padding-top:22px}
+  .pager a{flex:1 1 0;display:flex;flex-direction:column;gap:3px;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+  .pager a:hover{text-decoration:none;border-color:var(--accent);background:var(--panel-2)}
+  .pager .dir{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+  .pager .ttl{font-size:16px;font-weight:700;color:var(--ink)}
+  .pager a.next{text-align:right}
+  footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:13px;padding:20px 0 40px}
+  footer.site .wrap{display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;max-width:880px}
+  @media(max-width:900px){
+    .layout{flex-direction:column}
+    .sidebar{position:static;height:auto;width:auto;flex:none;border-right:none;
+      border-bottom:1px solid var(--line)}
+    nav.side{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px 8px}
+    nav.side .group{grid-column:1/-1}
+    h1{font-size:28px}.hero h1{font-size:32px}.pager{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <a class="brand" href="index.html">CDA<span class="lib">Lib</span></a>
+  <nav class="side">
+    <a href="index.html">Home</a>
+    <div class="group">Setup</div>
+    <a class="active" href="overview.html">Overview</a>
+    <a href="installation.html">Installation</a>
+    <div class="group">Getting Started</div>
+    <a href="getting-started.html">Getting Started</a>
+    <div class="group">Reference</div>
+    <a href="modular-opmode.html">ModularOpMode</a>
+    <a href="subsystems.html">Subsystems</a>
+    <a href="devices.html">Devices</a>
+    <a href="controllers.html">Controllers</a>
+    <a href="bindings.html">Bindings</a>
+    <a href="tasks.html">Tasks</a>
+    <a href="modules.html">Modules</a>
+    <a href="telemetry.html">Telemetry</a>
+    <a href="javadoc/index.html">API (Javadoc)</a>
+  </nav>
+</aside>
+<div class="content">
+<main>
+  <div class="wrap">
+
+    <h1>Overview</h1>
+    <p class="lead">CDALib is a structured way to build FTC OpModes out of reusable parts instead of one giant class.</p>
+
+    <p>CDALib is a FIRST Tech Challenge (FTC) robot-code library that gives your team a consistent
+    shape for every OpMode. Rather than writing a monolithic <code>OpMode</code> that pokes hardware
+    directly and hand-rolls its own loop, you assemble a robot from small, testable pieces —
+    <b>subsystems</b>, <b>devices</b>, <b>controllers</b>, <b>bindings</b>, <b>tasks</b>, and
+    <b>modules</b> — and let CDALib run their lifecycles for you.</p>
+
+    <p>It is built on top of <a href="https://pedropathing.com/">PedroPathing 3.0</a> for autonomous
+    path following and <a href="https://github.com/Eeshwar-Krishnan/PhotonFTC">PhotonFTC</a> for lower
+    loop times. Lynx hub bulk caching is handled automatically: each loop performs a single bulk read
+    of every sensor and encoder, so you get low, predictable cycle times without wiring that up
+    yourself. Both PedroPathing and PhotonFTC arrive transitively when you depend on CDALib — see
+    <a href="installation.html">Installation</a>.</p>
+
+    <div class="note"><b>Built on:</b> FTC SDK 12.0.0 &middot; PedroPathing 3.0.1 &middot; PhotonFTC
+    (optional, via <code>@Photon</code>) &middot; Panels dashboard. Lynx bulk caching is managed for you.</div>
+
+    <h2>Architecture</h2>
+    <p>Everything hangs off <a href="modular-opmode.html"><code>ModularOpMode</code></a>, a base OpMode
+    you extend. In its <code>preload()</code> hook you register subsystems and install modules; from
+    then on <code>ModularOpMode</code> drives every registered part through the same lifecycle —
+    <code>init()</code>, <code>init_loop()</code>, <code>start()</code>, <code>update()</code>/<code>loop()</code>,
+    and <code>stop()</code> — in registration order. On top of that sit the task system for
+    command-like sequencing and the binding manager for gamepad input. The pieces:</p>
+
+    <div class="grid">
+      <div class="card">
+        <span class="pill">Core</span>
+        <h3 style="margin-top:8px"><a href="modular-opmode.html">ModularOpMode</a></h3>
+        <p>The base OpMode. Drives registered subsystems and installed modules through their
+        lifecycles and manages Lynx bulk caching so each loop is a single bulk read.</p>
+      </div>
+      <div class="card">
+        <span class="pill">Structure</span>
+        <h3 style="margin-top:8px"><a href="subsystems.html">Subsystems</a></h3>
+        <p>Self-contained units of robot behavior (drive, lift, intake). Each implements
+        <code>init</code>, <code>init_loop</code>, <code>start</code>, <code>update</code>, and
+        <code>stop</code>, and is driven automatically once registered.</p>
+      </div>
+      <div class="card">
+        <span class="pill">Hardware</span>
+        <h3 style="margin-top:8px"><a href="devices.html">Devices</a></h3>
+        <p>Thin wrappers over SDK hardware — motors, servos, CR servos, and sensors (IMU, color,
+        distance, touch, analog/digital, REV Color Sensor V3) — that subsystems compose.</p>
+      </div>
+      <div class="card">
+        <span class="pill">Control</span>
+        <h3 style="margin-top:8px"><a href="controllers.html">Controllers</a></h3>
+        <p>PID, feedforward, and composable controllers that turn a target and a measurement into a
+        motor output — the closed-loop math your subsystems reuse.</p>
+      </div>
+      <div class="card">
+        <span class="pill">Input</span>
+        <h3 style="margin-top:8px"><a href="bindings.html">Bindings</a></h3>
+        <p>Declarative gamepad button and analog bindings (including toggles), registered against the
+        shared <code>bindingManager</code> so input handling stays out of your loop.</p>
+      </div>
+      <div class="card">
+        <span class="pill">Sequencing</span>
+        <h3 style="margin-top:8px"><a href="tasks.html">Tasks</a></h3>
+        <p>A command-like system: sequential, parallel, race, deadline, repeat, deferred, and
+        path-following tasks, run by the OpMode's task master each loop.</p>
+      </div>
+      <div class="card">
+        <span class="pill">Composition</span>
+        <h3 style="margin-top:8px"><a href="modules.html">Modules</a></h3>
+        <p>Reusable OpMode-level behaviors (such as binding and Pedro TeleOp drive modules) installed
+        with <code>installModule(...)</code> and driven alongside subsystems.</p>
+      </div>
+      <div class="card">
+        <span class="pill">Output</span>
+        <h3 style="margin-top:8px"><a href="telemetry.html">Telemetry</a></h3>
+        <p>A telemetry manager for organizing driver-station and dashboard output cleanly across
+        subsystems and modules.</p>
+      </div>
+    </div>
+
+    <h2>How a robot program is organized</h2>
+    <p>A CDALib robot program starts from a single OpMode class that extends
+    <a href="modular-opmode.html"><code>ModularOpMode</code></a>. You annotate it with
+    <code>@TeleOp</code> or <code>@Autonomous</code> (and optionally <code>@Photon</code>), and you
+    override one method — <code>preload()</code>.</p>
+
+    <p>Inside <code>preload()</code> you build the robot: construct your subsystems from the
+    <code>hardwareMap</code> and register each one with <code>registerSubsystem(...)</code>; install
+    any modules with <code>installModule(...)</code>; and wire gamepad input through the protected
+    <code>bindingManager</code> field. From that point on the OpMode owns the lifecycle — when the
+    driver hits INIT, every subsystem and module is initialized in registration order; while the
+    driver waits on the init screen, their <code>init_loop()</code> runs; on PLAY, <code>start()</code>
+    fires; and every cycle the OpMode clears the Lynx bulk cache once, then calls each subsystem's
+    <code>update()</code> and each module's <code>loop()</code>, and advances any running tasks.</p>
+
+    <p>Because each subsystem owns its own devices and closed-loop control, and each task encapsulates
+    a step of a routine, your OpMode stays small — it wires parts together rather than doing the work
+    itself. The same subsystems and tasks are reused across TeleOp and autonomous OpModes.</p>
+
+<nav class="pager">
+  <a class="prev" href="index.html"><span class="dir">&larr; Previous</span><span class="ttl">Home</span></a>
+  <a class="next" href="installation.html"><span class="dir">Next &rarr;</span><span class="ttl">Installation</span></a>
+</nav>
+  </div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <span>CDALib 0.2.0 &middot; CDAFM Robotics</span>
+    <span>Built on PedroPathing 3.0 &amp; PhotonFTC &middot; MIT License</span>
+  </div>
+</footer>
+</div>
+</div>
+</body>
+</html>
